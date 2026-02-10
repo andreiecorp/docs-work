@@ -1,0 +1,41 @@
+// верхний модуль не требует явного создания экземпляров и явной идентификации
+module {
+	term_plus  : Term;
+	term_minus : Term;
+	capacitor_decoup_term: CAP_0805(C=10U);
+}
+
+module Term {
+	port 1;
+}
+
+module Capacitor {
+	// "обмен"
+	port 1;
+	port 2;
+	
+	// "своппинг"
+	swap 1, 2;
+	
+	// "подробности"
+	set CLASS=CAPACITOR_NP;
+	
+	set CAPACITANCE=; // полное обозначение
+	set C=CAPACITANCE; // псевдоним
+	
+	set VOLTAGE_MAX=;
+	set V=VOLTAGE_MAX;
+	
+	// "подробности:модели"
+	set SIZE=;
+	set S=SIZE;
+	
+	set FOOTPRINT=;
+	set F=FOOTPRINT;
+	
+	set 3D=;
+}
+
+module CAP_0805: Capacitor {
+	set SIZE= 0805;
+}
