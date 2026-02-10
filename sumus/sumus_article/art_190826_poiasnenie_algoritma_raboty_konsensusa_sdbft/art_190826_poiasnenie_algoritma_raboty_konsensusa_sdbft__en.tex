@@ -1,0 +1,336 @@
+\documentclass[12pt,twoside,a4paper]{article}
+
+\usepackage[utf8]{inputenc} % Включаем поддержку UTF8
+\usepackage[russian]{babel} % [english, russian]
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{indentfirst} % Красная строка после заголовка
+
+\usepackage{float}
+
+\usepackage{graphicx,xcolor} % графика для svg
+\graphicspath{{fig/}}
+
+\title{Explanation of \textit{sdbft} consensus algorithm.}
+\author{rr@sumus.team, a@sumus.team}
+\date{August 26, 2019}
+
+\begin{document}
+
+\maketitle
+
+\setcounter{section}{1}
+\setcounter{subsection}{1}
+\subsubsection{Explanation of \textit{sdbft} consensus algorithm} \mbox{} \\ 
+This section contains a simplified description of the \textit{\textbf{sdbft}} consensus algorithm.
+
+\begin{enumerate}
+
+\item
+Before work starting, we have a peer-to-peer network with the nodes that have their own network address and a unique number that all network participants know. For example, we will have 13 network participants. Let's number all nodes with the following numbers: 1 - 13. We also agree that 5 nodes will make the consensus. 
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f1.pdf_tex}
+	\label{F1}
+%	\caption{}
+\end{figure}
+The blue color will indicate the nodes working in the block chain. Green will indicate the nodes participating in the consensus. The master node will be marked in orange. The blocks in abnormal operation mode will be marked by red.
+
+\item
+Consensus operation start. Let all nodes of the peer-to-peer network accept the block 1. The accepted block contains information that will allow the function $ f $ (see Appendix A) to create a random sequence. Let this sequence be the following --- No. 3, 5, 7, 11, 13. Let's mark the nodes --- No. 3, 5, 7, 11, 13 with color.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f2.pdf_tex}
+	\label{F2}
+%	\caption{}
+\end{figure}
+
+\item
+According to the figure above, the node 3 is marked in orange to indicate that it is a master node. From this point on, the nodes 3, 5, 7, 11, 13 participate in consensus.
+
+\item
+Let the node 3 has a new transaction from the node 2. The node 3 checks whether the transaction is correct. If it is recognized as correct, then node 3 sends it to the nodes 5, 7, 11, 13.
+
+\item
+At the end of the time specified for block closing, node 3 sends the nodes No. 5, 7, 11 and 13 a message on block closing.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f3.pdf_tex}
+	\label{F3}
+%	\caption{}
+\end{figure}
+
+\item
+The nodes 5, 7, 11 and 13 forward the hash of the Merkle tree, the transactions they received, and their signatures under the hash to the node 3.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f4.pdf_tex}
+	\label{F4}
+%	\caption{}
+\end{figure}
+
+\item
+Node 3 considers signatures, if the signatures are correct and their number satisfies the solution of the Byzantine generals problem and if there are at least 3 of them, then the block is considered as formed. The node 3 sends out a new block announcement to all network nodes.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f5.pdf_tex}
+	\label{F5}
+%	\caption{}
+\end{figure}
+
+\item
+The nodes accept the block number 2. We return to the second step of the algorithm, now let the function $ f $ (see Appendix A) create a random sequence based on the received blocks, let there be the numbers  6, 2, 3, 11, 12.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f6.pdf_tex}
+	\label{F6}
+%	\caption{}
+\end{figure}
+
+Next, the process is repeated in accordance with the step 3 - 8 of the algorithm.
+\end{enumerate}
+
+\subsubsection{Error handling by \textit{sdbft} algorithm}
+
+\paragraph{Master node unavailable}
+\begin{enumerate}
+\item
+Let's repeat the steps of the algorithm 1 and 2.
+
+\item
+Before work start, we have a peer-to-peer network with the nodes that have their own network address and a unique number that all network participants know. For example, we will have 13 network participants. Let's number all nodes with the following numbers: 1 - 13. We also agree that 5 nodes will make the consensus.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f1.pdf_tex}
+	\label{F7}
+%	\caption{}
+\end{figure}
+
+\item
+Consensus operation start. Let all nodes of the peer-to-peer network accept the block 1. The accepted block contains information that will allow the function $ f $ (see Appendix A) to create a random sequence. Let this sequence be the following - No. 3, 5, 7, 11, 13. The node 3 is unavailable. Let's mark the network nodes with color.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f8.pdf_tex}
+	\label{F8}
+%	\caption{}
+\end{figure}
+
+
+\item
+Escort nodes will not receive a message about block closure, the block chain network will go to the next round (see Appendix A).
+
+\item
+Let's return to the second step of the algorithm, now let the function $ f $ (see Appendix A) create a random sequence based on the received block and round number, let there be the numbers 7, 1, 4, 12, 13. The block chain network will look as follows.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f9.pdf_tex}
+	\label{F9}
+%	\caption{}
+\end{figure}
+
+\item
+Next, the algorithm will be executed in a regular manner according to the steps 3 - 8.
+
+\end{enumerate}
+
+\paragraph{Escort node unavailable}
+\begin{enumerate}
+\item
+Let's repeat the steps of the algorithm 1 and 2.
+
+\item
+Before work start, we have a peer-to-peer network with the nodes that have their own network address and a unique number that all network participants know. For example, we will have 13 network participants. Let's number all nodes with the following numbers: 1 - 13. We also agree that 5 nodes will be the part of the consensus.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f1.pdf_tex}
+	\label{F10}
+%	\caption{}
+\end{figure}
+
+\item
+Consensus operation start. Let all nodes of the peer-to-peer network accept the block No. 1. The accepted block contains information that will allow the function $ f $ (see Appendix A) to create a random sequence. Let this sequence be the following one - 3, 5, 7, 11, 13. The node 13 is unavailable. Let's mark the selected nodes with color.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f11.pdf_tex}
+	\label{F11}
+%	\caption{}
+\end{figure}
+
+\item
+Escort node 13 will not receive a message about block closure and will not send its signature to close the block. If the remaining three nodes send the correct transaction signatures of the generated block, then the block will be formed. The nodes participating in the consensus will be selected again.
+
+\item
+If the remaining three nodes send incorrect transaction signatures of the generated block, the block will not be generated. The block chain will move on to the next round. The nodes participating in the consensus will be selected again.
+
+\end{enumerate}
+
+\paragraph{Invalid transaction}
+\begin{enumerate}
+\item
+Let the node 3 received a new transaction from the node 2. The node 3 checks the transaction and recognizes it as incorrect.
+
+\item
+If the node 3 recognized the transaction as invalid, then it discards it. A message for the node 2 on the incorrect transaction is not forwarded to the nodes included in the consensus.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f12.pdf_tex}
+	\label{F12}
+%	\caption{}
+\end{figure}
+
+\end{enumerate}
+
+\paragraph{Different block chain number of blocks on different nodes} \mbox{} \\ 
+A different number of accepted blocks on different nodes of the block chain may be different if, for example, the network was segmented and not all nodes managed to synchronize. Let's repeat the steps 1 - 5 of the algorithm.
+
+\begin{enumerate}
+\item
+Before work start, we have a peer-to-peer network with the nodes that have their own network address and a unique number that all network participants know. For example, we will have 13 network participants. Let's number all nodes with the following numbers: 1 - 13. We also agree that 5 nodes will make the consensus.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f1.pdf_tex}
+	\label{F13}
+%	\caption{}
+\end{figure}
+	
+\item
+The beginning of the consensus operation. Let all nodes of the peer-to-peer network accept block 1. The accepted block contains information that will allow the function $ f $ (see Appendix A) to create a random sequence. Let this sequence be the following --- 3, 5, 7, 11, 13. The nodes 7 and 11 have an excellent number of received blocks from the nodes 3, 5, 13. Let's mark the selected nodes with color.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f14.pdf_tex}
+	\label{F14}
+%	\caption{}
+\end{figure}
+
+\item
+As is shown by the figure, the node 3 was marked in orange to show that it is a master node. From now on, the nodes 3, 5, 13 participate in consensus.
+
+\item
+Let the node 3 received a new transaction from the node 2. The node 3 checks if the transaction is correct. If it is recognized as correct, then the node 3 sends it to the nodes 5, 7, 11, 13. The nodes 7 and 11 reject the transaction.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f15.pdf_tex}
+	\label{F15}
+%	\caption{}
+\end{figure}
+
+\item
+At the end of the time for the block closure, the node 3 sends a message about the block closing to the nodes 5, 7, 11, 13. The nodes 7 and 11 reject the message.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f16.pdf_tex}
+	\label{F16}
+%	\caption{}
+\end{figure}
+
+\item
+The nodes 5 and 13 forward the hash of the transactions and their signatures under the hash to the node 3.
+	
+\item
+The node 3 checks the signatures of escort nodes. Since the number of escort node signatures is not enough to accept a block, the block chain moves on to the next round.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f17.pdf_tex}
+	\label{F17}
+%	\caption{}
+\end{figure}
+
+\end{enumerate}
+
+\paragraph{New blockchain block is rejected by node} \mbox{} \\ 
+A network node can reject a new blockchain block. There may be several reasons why the node rejects the block. For example, a database reading error occurred on the node due to a software or hardware failure and wallet balances changed. Let's repeat the step 7.
+
+\begin{enumerate}
+\item
+The node 3 sends out a new block announcement to all network nodes.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f5.pdf_tex}
+	\label{F18}
+%	\caption{}
+\end{figure}
+
+\item
+Let the node number 1 rejects the block.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f19.pdf_tex}
+	\label{F19}
+%	\caption{}
+\end{figure}
+
+\item
+The node 1 tries to find a block on the network with a hash sum that is different from the block it recognized as an error; if the node cannot find a block satisfying it, the node starts the block chain re-synchronization procedure, see step 3.5.
+
+\end{enumerate}
+
+\paragraph{Network rejects a new blockchain block} \mbox{} \\ 
+When a new block is created, a conscious attempt of a group of nodes to impose its own erroneous block may occur theoretically. Let the nodes No. 3, 5, 7, 11, 13 try to impose their own, the wrong block of the block chain network. Let's repeat the step 7.
+
+\begin{enumerate}
+\item
+The node 3 sends out a new block announcement to all network nodes.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f20.pdf_tex}
+	\label{F20}
+%	\caption{}
+\end{figure}
+
+\item
+All network nodes reject a new block.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f21.pdf_tex}
+	\label{F21}
+%	\caption{}
+\end{figure}
+
+\item
+The block chain moves to the next round until the next block is correctly formed.
+
+\end{enumerate}
+
+\paragraph{Two blocks with identical numbers appeared in the network} \mbox{} \\ 
+Two blocks with identical numbers can occur in the network only if two consensuses are formed from the nodes with different rounds, and this is possible if a global failure occurs in the network. For example, some nodes were located on the servers that were simultaneously rebooted. In this case, the following will occur.
+
+\begin{enumerate}
+\item
+Suppose that two sets of nodes have been formed to create consensus - 3, 5, 7, 11, 13 and 8, 9, 6, 1, 10. The node 3 and 8 send out a new block announcement to all network nodes.
+\begin{figure}[H]
+	\centering
+	\def\svgwidth{8cm} % изменить размер
+	\input{fig/f22.pdf_tex}
+	\label{F22}
+%	\caption{}
+\end{figure}
+
+\item
+When a new block is accepted, the node checks whether the block creation round is included in the confidence interval of the rounds or not. I.e. how much a new block round differs from its own node round. If the round is recognized by the node as correct, then the block is accepted. If it is considered incorrect, the block is rejected. Further, there are two possible ways of the situation development:
+\subparagraph{a.} The rounds of the formed blocks are in the confidence interval. In this case the node will receive the block that arrived first. The probability of getting into a block chain block will depend on the block accepted by most network nodes.
+\subparagraph{b.} The round of one of the formed blocks is not in the confidence interval for the majority of the network nodes. Therefore, a block with a round number from the confidence interval will be accepted by most nodes.
+
+\end{enumerate}
+
+\end{document}

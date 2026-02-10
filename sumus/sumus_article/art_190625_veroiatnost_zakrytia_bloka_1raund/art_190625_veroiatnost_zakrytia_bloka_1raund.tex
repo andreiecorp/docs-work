@@ -1,0 +1,163 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc} % Включаем поддержку UTF8
+\usepackage[russian]{babel} % [english, russian]
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{indentfirst} % Красная строка после заголовка
+
+\usepackage{enumitem} % расширение для enumerate
+\makeatletter
+\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+\makeatother
+
+\usepackage{amsmath} % Расширенное форматирование формул, в т.ч. "aligned"
+
+\title{Вероятность закрытия блока за 1 раунд, если из $n$ узлов $m$ отключены.}
+\author{noise@sumus.team}
+\date{25 июня 2019 г.}
+
+\begin{document}
+
+\maketitle
+
+\def\np{n^\prime}
+
+\begin{abstract}
+	\dots \\
+\end{abstract}
+
+\paragraph*{Допущение}
+
+\begin{enumerate}[label=\asbuk*),ref=\asbuk*]
+	\item Вероятность закрытия блока при $m=0$ равна 1.
+	\label{enum:1a}
+	\item Эскорт выбирается 1 раз для закрытия 1 блока.
+\end{enumerate}
+
+\paragraph*{Следствие 1}
+
+Если допущение \ref{enum:1a} верно, то если при выборе из $B_n$ эскорта $B_{\np}$ все $\np$ узлов подряд оказались неотключёнными, то консенсус достигается за 1 раунд.
+
+%
+Вероятность $p=\frac{n-m}{n}$ -- того, что при $m$ отключенных узлах за одно испытание будет выбран подключённый узел. $q=1-p=\frac{m}{n}$ -- вероятность противоположного исхода.
+
+%
+Это эквивалентно схеме испытаний без ``возврата''. Так, у нас в урне $n$ шаров из которых $m$ чёрных и $n-m$ белых. Какова вероятность того, что можно вытащить за $\np$ попыток $\np$ белых шаров (то есть ``подряд''), если после каждой попытки шар не возвращается в урну. Здесь подразумевается, что ``набор'' одного эскорта $B_{\np}$ это вытаскивание подряд $\np$ шаров из урны 
+
+%
+В  $B_{\np}$ может быть $< \left[\frac\np{3}\right]$ неподключённых узлов (по сравнению со следствием 1).
+
+\paragraph*{Дополнение. }
+$B_n$ статистически подобно $A_n$
+
+%
+Вероятность того, что за $\np$ попыток будет выбрано из $n$ узлов $\np$ неотключённых равна
+\begin{equation*}
+	p_{\np}=\frac{\np!}{\np!(\np-\np)!}
+	\cdot p^{\np}
+	\cdot (1-p)^{\np-\np} =
+\end{equation*}
+
+\begin{equation*}
+	C_{\np}^{\np}
+\end{equation*}
+
+\begin{equation}
+	p_{\np}=\left(\frac{n-m}{n}\right)^{\np}
+	\label{equation:p_nprim}
+\end{equation}
+-- с ``возвратом''.
+
+%
+На самом деле -- без ``возврата''. Тогда
+\begin{equation}
+	p_{\np}
+	=\frac{C_{n-m}^{\np}\cdot C_{m}^{\np-\np}}{C_{n}^{\np}}
+	=\frac{\frac{(n-m)!}{n! \:?\: (n-m-\np)!}\cdot\frac{m!}{0!m!}}{\frac{n!}{\np!(n-\np)!}}
+	=\frac{(n-m)!(n-\np)!}{\np(n-m-\np)!}
+	\label{equation:p_nprim2}
+\end{equation}
+
+%
+Если число попыток $k\ge \np$, ($k\le \np+m$ -- физическое ограничение) то формула (\ref{equation:p_nprim2}) примет вид
+
+\begin{equation}
+	p_{k}=\frac{C_{n-m}^{\np} \cdot C_{m}^{k-\np}} {C_{n}^{k}}
+	=\frac{
+		\frac{(n-m)!}{n!(n-m-\np)!}
+		\cdot
+		\frac{m!}{(k-\np!)(m-k+\np)!}
+	}{
+		\frac{n!}{\np!(n-\np)!}}
+	=\frac{
+		(n-m)!(n-\np)!m!
+	}{
+		n!(n-m-\np)!(k-\np)!(m-k+\np)!}
+	\label{equation:p_k}
+\end{equation}
+
+%
+Вероятность того, что без ``возврата'' при $m$ отключённых узлах за $k$ попыток в $B_{\np}$ попадёт $\hat{n}$ подключённых узлов $k\le \widehat{n}+m; \: k\ge \np$
+
+\begin{equation*}
+	p_k=\frac{C_{n-m}^{\widehat{n}}\cdot C_m^{k-\widehat{n}}}{C_n^k}
+\end{equation*}
+
+\section{Вторая постановка задачи о вероятности закрытия блока за 1 раунд, когда из $n$ узлов в $B_n$ отключены $m$ узлов.}
+
+\begin{enumerate}[label=\asbuk*),ref=\asbuk*]
+	\item Вероятность закрытия блока за 1 раунд равна 1 только при $m=0$.
+	\item Эскорт $B_{\np}$ выбирается 1 раз для закрытия 1 блока.
+	\item 1 блок может быть закрыт за 1 раунд, если в эскорт  первым попал неотключённый узел, и в целом за $\np$ попыток в эскорт попало $n^*+1$ неотключённых узлов : $n_1\le n^*+1\le n_2$, включая мастер-узел.
+\end{enumerate}
+
+\section{Алгоритм}
+
+\paragraph{1.}
+Вероятность того, что с первой попытки в эскорт попадёт неотключённый узел и станет мастер-узлом равна $p_1=\frac{n-m}{n}$.
+
+\paragraph{2.}
+Вероятность того, что из оставшихся $n-1$ узлов за оставшиеся $\np-1$ попытку будет выбрано $n^*\le \np-1$ неоключённых узлов.
+
+\begin{equation*}
+	p_{n^*}
+	=\frac{C_{n-m}^{n^*}\cdot C_m^{\np-n^*-1}}{C_n^{\np-1}}
+	=\frac{
+	(n-m)!(n-n^*)!m!}{n!(n-m-n^*)!(\np-n^*-1)!(m-\np+n^*+1)!}
+\end{equation*}
+
+\begin{equation*}
+	\np-1\le n^*+m
+\end{equation*}
+
+\begin{equation*}
+	n^*>\left\lceil \frac{3}{4} \np \right\rceil - 1
+\end{equation*}
+$\lceil \bullet \rceil$ ``Потолок'' -- округляется в сторону ближайшего большего целого числа.
+
+\paragraph{3.}
+Вероятность того, что в $B_{\np}$ попадёт с первой попытки неотключённый узел, с остальных $\np-1$ попыток $n^*$ неотключённых узлов, есть произведение $p_1$ на $p_{n^*}$
+\begin{equation}
+	p=\frac{n-m}{n}\cdot\frac{(n-m)!(n-n^*)!m!}{n!(n-m-n^*)!(\np-n^*-1)!(m-\np+n^*+1)!}
+	\label{equation:p}
+\end{equation}
+
+\paragraph{2'.}
+Если вместо п.2 алгоритма потребовать, чтобы за оставшуюся $\np-1$ попытку (опыт) из $n-1$ узла будет выбрано $\lceil \frac{3}{4} \np \rceil \le n^* \le \np-1$ ($n_1 = \lceil \frac{3}{4} \np \rceil; \; n_2 = \np-1$ ) неотключённых узлов, то искомая вероятность есть сумма $p_{n^*}$ при $n^* = \lceil \frac{3}{4} \np \rceil, \dots, \np - 1$ :
+\begin{equation*}
+p_{n_1\le n^*\le n_2} = \sum_{n^*=n_1}^{n_2}p_{n^*}
+\end{equation*}
+
+%
+Тогда вместо формулы (\ref{equation:p}) будет получено:
+\begin{equation}
+	p=\frac{n-m}{n}
+	\cdot
+	\sum_{n^*=\lceil \frac{3}{4} \np \rceil}^{\np-1}
+	\frac{(n-m)!(n-n^*)!m!}{n!(n-m-n^*)!(\np-n^*-1)!(m-\np+n^*+1)!}
+	\label{equation:p2}
+\end{equation}
+
+
+\end{document}

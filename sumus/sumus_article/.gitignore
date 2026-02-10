@@ -1,0 +1,8 @@
+*.*
+!*.tex
+!*.txt
+!*.pdf
+!*.pdf_tex
+!*.svg
+!*.png
+!*.doc*

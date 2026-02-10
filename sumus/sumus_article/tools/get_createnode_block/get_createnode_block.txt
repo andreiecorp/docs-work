@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import os, sys, re, string, time, json, urllib3, pickle
+#logging
+import logging
+import requests
+#from threading import Thread, Lock, Condition, Event
+#TODO обернуть if
+import concurrent.futures
+import urllib3 
+from urllib3 import PoolManager
+from urllib3.util.request import make_headers
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, ALL_COMPLETED
+#from multiprocessing import Manager as DataManager
+from datetime import datetime
+from collections import Counter, deque
+
+def fetch_(url, manager, postjson, headers): #{{{ urllib3
+    post_= json.dumps(postjson).encode()
+    try:
+        answer = manager.request(
+            'POST',
+            url,
+            body=post_,
+            headers=headers,
+           # retries=False
+        )
+    except urllib3.exceptions.NewConnectionError:
+        res = {'error':'new connect error host'}
+    except urllib3.exceptions.MaxRetryError:
+        res = {'error':'max retry error host'}
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        print(message)
+        res = {'error':'unknoun error to host'}
+    else:
+        res = json.loads(answer.data.decode())
+    return res #}}}
+
+def main(): #{{{ pubkey:balance
+    print("use start bitcoin daemon ... ./bitcoind -server -rpcuser=aaa -rpcpassword=12345678 -rpcallowip=127.0.0.1 ")
+    net_manager = PoolManager()
+    HEADERS=dict()
+    HEADERS.update(make_headers(basic_auth='aaa:12345678'))
+    HEADERS.update({'Content-Type': 'text/plain'})
+    cnt_id = 1
+#    curl --user aaa -d '{..}' -H 'content-type: text/plain;' 
+    url='http://127.0.0.1:8332/'
+    print('url:',url)
+    result = dict()
+#{"jsonrpc": "1.0", "id":"curltest", "method": "getblock", "params": ["00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09", 2] }
+    post_getblock_inside={ #{{{
+            "jsonrpc": "1.0",
+            "id": 0,
+            "method":"getblock",
+            "params":[]
+        } #}}}
+    post_getblock_hash={ #{{{
+            "jsonrpc": "1.0",
+            "id": 0,
+            "method":"getblockhash",
+            "params":[]
+        } #}}}
+    post_getblock_count={ #{{{
+            "jsonrpc": "1.0",
+            "id": 0,
+            "method":"getblockcount",
+            "params":[]
+        } #}}}
+    post_decodescript={ #{{{
+            "jsonrpc": "1.0",
+            "id": 0,
+            "method":"decodescript",
+            "params":[]
+        } #}}}
+    res = fetch_(url, net_manager, post_getblock_count, HEADERS)
+    blockcount = res["result"]
+    print('Block count blockchain', blockcount)
+    if not blockcount : exit()
+    try:
+        while cnt_id < blockcount:
+            post_getblock_hash["params"]=[cnt_id]
+            res = fetch_(url, net_manager, post_getblock_hash, HEADERS)
+            #print(res)
+            hashblock = res["result"]
+            post_getblock_inside["params"]=[hashblock, 2]
+            res = fetch_(url, net_manager, post_getblock_inside, HEADERS)
+            for trns in res["result"]["tx"]:
+                #for vin_item, vout_item in zip(trns['vin'],trns['vout']):
+                for vin_item in trns['vin']:
+                    if 'coinbase' in vin_item.keys():
+        #                print('Block:',cnt_id, 'trns:', trns)
+                        max_value = 0
+                        for item in trns['vout']:
+                            if float(item['value']) > max_value:
+                                max_value = float(item['value']) 
+                                vout_item = item
+                        value = vout_item['value']
+                        if 'scriptPubKey' in vout_item.keys():
+                            #if 'addresses' in vout_item['scriptPubKey'].keys():
+                            #    addr = str(vout_item['scriptPubKey']['addresses'])
+                            #else:
+                            script = vout_item['scriptPubKey']['hex']
+                            post_decodescript['params']=[script]
+                            res_decode = fetch_(url, net_manager, post_decodescript, HEADERS)
+                            s1=str(res_decode['result']['asm']).split()
+                            s1.sort(key=len, reverse=True)
+                            for detect in s1:
+                                hex_asm=re.sub('[^%s]' % string.hexdigits ,"",detect)
+                                if len(hex_asm) == len(detect): break
+                         #  print('Cute: asm',hex_asm)
+                            post_decodescript['params']=[hex_asm]
+                            res_decode = fetch_(url, net_manager, post_decodescript, HEADERS)
+                         #  print('DECODE:asm', res_decode)
+                            if 'segwit' in res_decode['result'].keys():
+                                addr = res_decode['result']['segwit']['addresses']
+                            elif 'addresses'in res_decode['result'].keys():
+                                addr = res_decode['result']['addresses']
+                            else:
+                                raise 
+                        print(
+        "Block {}, coinbase value {}, coinbase address {} ".format(
+               cnt_id,
+                                  value,
+                                                       addr)
+        )
+            cnt_id += 1
+
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        print(message)
+        print('Block:',cnt_id, 'trns:', trns)
+        print('Cute: asm',hex_asm)
+        print('DECODE:asm', res_decode)
+    del(net_manager)
+    #}}}
+
+
+
+if __name__ == "__main__":
+    #TEST MODE
+ #   asyncio.run(main())
+    main()
+    '''   "value": 0.49264273,
+          "n": 1,
+          "scriptPubKey": {
+            "asm": "OP_DUP OP_HASH160 ede8a455712d590848349dcf4a02dad09310ca25 OP_EQUALVERIFY OP_CHECKSIG",
+            "hex": "76a914ede8a455712d590848349dcf4a02dad09310ca2588ac",
+            "reqSigs": 1,
+            "type": "pubkeyhash",
+            "addresses": [
+              "1Ngwqi63i55m9YbJaA26h17wvHikjgS142"
+            ]
+          }
+'''

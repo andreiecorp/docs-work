@@ -1,0 +1,606 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english, russian]{babel} 
+\usepackage{amscd, amsmath, amssymb, amsthm, enumerate, indentfirst, longtable, ifthen} %% addlibrary rom mathematic 
+\usepackage{ragged2e}
+\usepackage{microtype}
+%кодировка шрифта в pdf
+\usepackage{cmap}
+%\usepackage{fontspec}
+%\setmainfont[Ligatures=TeX]{Georgia}
+%\setsansfont[Ligatures=TeX]{Arial}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref} %hyperlink support
+\definecolor{black}{rgb}{0.0, 0.0, 0.0} 
+\definecolor{lightyellow}{rgb}{1.0, 1.0, 0.87}
+\pagecolor{black}
+\color{lightyellow}
+%\pagecolor{lightyellow}
+%\color{black}
+\usepackage{indentfirst}
+\usepackage{setspace}
+\setstretch{1.15} % interval 
+ % \usepackage{multirow}
+ % \usepackage{longtable} 
+\RequirePackage{caption}
+\DeclareCaptionLabelSeparator{defffis}{. }
+\captionsetup{justification=centering,labelsep=defffis}
+\usepackage{graphicx}
+\graphicspath{{pictures/}}
+\DeclareGraphicsExtensions{.png,}
+ %%end picture 
+%\linespread{1.3} % полуторный интервал
+\usepackage{geometry}
+\geometry{
+ 	tmargin=15mm,       % Up 
+ 	bmargin=15mm,      % Down 
+ 	lmargin=15mm,        % left поле
+ 	rmargin=15mm,        % right  
+}
+%%управление интервалами
+\makeatletter
+\renewcommand{\@listI}{%
+	\topsep=0pt }
+\makeatother
+\makeatletter
+\let\old@itemize=\itemize
+\def\itemize{\old@itemize
+	\setlength{\itemsep}{0pt}
+	\setlength{\parskip}{0pt}
+	\setlength{\leftskip}{10pt}
+}
+\makeatother
+\makeatletter
+\let\old@enumerate=\enumerate
+\def\enumerate{\old@enumerate
+	\setlength{\itemsep}{00pt}
+	\setlength{\parskip}{0pt}
+	\setlength{\leftskip}{0pt}
+}\makeatother
+
+%гиперссылки
+\usepackage{xcolor}
+\usepackage{hyperref}
+\definecolor{linkcolor}{HTML}{799B03} % цвет ссылок
+\definecolor{urlcolor}{HTML}{799B03} % цвет гиперссылок
+\hypersetup{pdfstartview=FitH,  linkcolor=linkcolor,urlcolor=urlcolor, colorlinks=true}
+
+%% new command 
+\newcommand{\jj}{\righthyphenmin=20 \justifying}
+%\renewcommand{\rmdefault}{ftm} % Times New Roman
+%\renewcommand{\familydefault}{\sffamily}
+%\renewcommand{\rmdefault}{cmr}
+%\renewcommand{\rmdefault}{cmr}
+%\renewcommand{\sfdefault}{cmss}
+\renewcommand{\ttdefault}{cmtt}
+\renewcommand{\rmdefault}{cmss}
+\renewcommand{\ttdefault}{cmss}
+
+\usepackage{float}
+\usepackage{graphicx,xcolor} % графика для svg
+\graphicspath{{fig/}}
+
+%opening
+\title{\Huge\textbf{AUREUS}\\
+{Fast, free transaction and secure coin}}
+\date{1 December 2020 y.}
+
+\begin{document}
+
+\maketitle
+
+\textbf{\Large{Tech Paper v.0.2}}
+
+\author{Aureus Securities AG}
+
+{Short version: www.swissaureus.com}
+
+\section{Introduction}\addcontentsline{toc}{section}{Introduction}
+
+Why and for what are we creating the Aureus Securities AG blockchain? The existing blockchains, with all their attractiveness in terms of security and anonymity, have many drawbacks for practical use:
+\begin{itemize}
+	\item High transaction fees.
+	\item Semi-legal ways to buy / exchange tokens.
+	\item High volatility.
+	\item  "Complex" emission algorithms that constantly affect the final cost of tokens.  
+	\item Unpredictable time for a transaction to be included in the blockchain.
+\end{itemize}
+
+The blockchain Aureus Securities AG was created with the aim of preserving the important properties of the blockchain and eliminating its weaknesses.
+
+\textbf{Therefore, we created a space with the following set of properties}
+
+\begin{itemize} 
+	\item Means of settlement with a stable price linked to existing monetary units.
+	\item Transparent emission.
+	\item Free transactions.
+	\item Fast transactions that are guaranteed to hit the blockchain within one minute.
+	\item Decentralization based on a large number of nodes located around the world.
+\end{itemize}
+
+ This tool will allow people to:
+
+\begin{itemize}
+	\item be confident in the safety of their valuables;
+	\item transfer value freely, quickly, reliably and without commissions anywhere in the world.
+
+\end{itemize}
+
+\section{Platform Description}
+The financial platform of Aureus Securities AG is based on the technologies of the Gaus \footnote{The description of all the capabilities of the Gaus blockchain constructor is not the purpose of this document.}.
+The project-dependent part of the blockchain was developed in collaboration with Gaus specialists. Key features of the Aureus Securities AG blockchain network
+\begin{itemize}
+	\item The sdBFT\footnote{Algorithm of the POS blockchain family} consensus algorithm is used;
+	\item The number of nodes participating in the formation of the block - 5;
+	\item A block in the blockchain is formed every 20 seconds;
+	\item The number of nodes in the network at the beginning of the start 50;
+	\item  Execution of privileged transactions in the network is carried out through multisign wallets by trusted representatives of Aureus Securities AG;
+	\item Privileged operations are used to add / remove nodes from the blockchain network, register new tokens, and issue additional tokens;
+	\item Multisign wallets for blockchain users;
+	\item Automatic blockchain truncation (upon reaching the blockchain size 4x Tb);
+	\item Speed characteristics of the blockchain: inclusion in the block of transactions up to 10,000 per second (provided proper communication channels and sufficient performance of the nodes of the blockchain network).
+\end{itemize}
+
+
+\section{Algorithm of emission}
+
+The Aureus Securities AG platform creates tokens that are used for settlements. The main token of the AUS system is equal in value to 1 USD.
+The issue of tokens is carried out by a special multisign transaction, which must be sequentially signed by trusted representatives of Aureus Securities AG (wallets with a special Owner tag). In order for the blockchain to issue an emission, \textit{multi sign register token transaction} must be issued and signed by at least three trusted representatives. Trusted representatives of Aureus Securities AG are full-time employees of various divisions who, by their totality, cannot collude and perform unauthorized transactions. Also, the structure of Aureus Securities AG provides external control over the emission operations by the security service. 
+
+Emission characteristics:
+\begin{itemize}
+	\item The created token has a three-letter designation and a decimal code. 
+	\item Each additional issue is issued according to a transparent algorithm.
+	\item Number of digits of the whole part: 11.
+	\item Number of digits after the decimal point: 2.
+\end{itemize}
+
+When the blockchain network is launched, the tokens and their number are not defined in the genesis block of the blockchain. The initial issue is the creation of an AUS token in the amount of 1. EUR / USD / CHF tokens will also be issued for internal settlements.
+
+As part of the financial audit, Aureus Securities AG will publish information on the compliance of the issued tokens with the reserved financial resources..
+
+\section{Free fast transactions}
+
+Transactions on the Aureus Securities AG network are free, the block is closed in 20 seconds, the throughput is up to 10,000 transactions per second. The blockchain is optimized due to the fact that the blockchain does not store information about the input and output of a transaction (unlike the UTXO model in BTC-like systems).
+
+Free transactions for users are possible thanks to the minting mechanism, which is implemented on the sdBFT algorithm.
+
+\subsection{Reflection point}
+
+\begin{itemize}
+	\item Due to the zero commission for the transfer of tokens, the system allows microtransactions, therefore, to ensure the long-term functioning of the blockchain, a procedure for its periodic truncation is introduced.
+	\item When the blockchain size reaches 4 Tb, the truncation algorithm is activated: the system conditionally removes from the working part of the blockchain all zero (empty) wallets and all wallets with a balance of less than 1 token. The state of the blockchain after cleaning will be written to the new Genesis Block. The previous state of the blockchain will only be stored on specialized (archived) nodes.
+\end{itemize}
+
+
+
+\section{Blockchain}
+
+\subsection{Justification for the choice}
+The objectives of the Aureus Securities AG blockchain application demanded a consensus that met the following parameters.
+\begin{enumerate}
+			\item  Time to create a new block is at least 30 seconds.
+			\item The total number of nodes that can participate in consensus building must be at least $10^3$.
+			\item High transaction speed - at least $10^3$ transactions per second.
+			\item The implementation of the blockchain algorithm should not require significant computing power, compared to PoW blockchains.
+\end{enumerate}
+The choice fell on the sdBFT algorithm, which has a higher performance compared to other BFT algorithms. The potentially large number of consensus participants complicates collusion when a group of voting nodes forms a new block, managing the composition of the block at their discretion, since a different set of voting nodes will be chosen the next time a consensus is established. Pseudo-random selection of a set of voting nodes will not significantly influence the selection of nodes in the next voting. For a description of the algorithm, see Article concensus sdBFT. \href{magnet:?xt=urn:btih:c5a3d2762bd1f10c18f51b2606b1a32549d79ed4\&dn=Article\%20concensus\%20sdBFT.pdf\&tr=udp\%3A\%2F\%2Ftracker.leechers-paradise.org\%3A6969\&tr=udp\%3A\%2F\%2Ftracker.coppersurfer.tk\%3A6969}{Article concensus sdBFT}.
+
+\subsection{Brief description of the algorithm for forming a new block}
+
+\begin{itemize}
+	\item Suppose that at a certain moment of time the user forms a transaction $I$. 
+	\item The transaction is forwarded to the closest node this client is associated with. 
+	\item A node can be in one of three states: passive, escort or master. 
+	\item If the node is passive, it verifies the transaction and passes it on through the peer-to-peer network until the transaction reaches the escort node. 
+	\item  Escort node forwards the transaction to the master node.
+	\item  The master node checks the transaction and, if the transaction is correct, forwards it to the escort nodes, and also writes the transaction $I$ to the generated block. 
+	\item Escort nodes, having accepted the transaction $I$,  check it for correctness and write it to formed block.
+	\item This sequence of actions is repeated until the end of the block, no more than 20 seconds. 
+	\item After that, the master node sends out a block completion message. 
+	\item Each escort node calculates the hash of the transaction block, the electronic signature of the hash and sends the resulting hash to the master node.
+	\item The master node calculates the number of correct, in its opinion, electronic signatures. If the received number of correct signatures exceeds 2/3 of the total value of escort nodes participating in the consensus, the block is considered completed. Otherwise, the block is not formed.
+	\item The blockchain is out of time, does not check and does not agree on the timing of transactions placed in the block.
+	\item Systems running on top of the blockchain will be guided by a certain average block closing time (about 20 seconds).
+\end{itemize}
+   The implementation of the sdBFT consensus algorithm is much more complicated; for a more complete understanding, refer to the section  \hyperref[ExtAlg_sdBFT]{"Explanation of the consensus algorithm"}.
+
+\subsection{Cryptography}
+
+\subsubsection{Electronic signature and hashing algorithms}
+The applied cryptographic algorithms meet the highest requirements for the protection of confidential and banking information. 
+\begin{itemize}
+	\item   Edwards-Curve Digital Signature Algorithm (EdDSA) \footnote{RFC 8032 https://tools.ietf.org/html/rfc8032};
+	\item SHA-3 \footnote{FIPS PUB 202 https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf};
+\end{itemize}
+
+\subsubsection{Pseudo-random number generator }
+
+Standard pseudo-random number generators built into operating systems, as a rule, have a number of significant vulnerabilities, the most dangerous of which are:
+
+\begin{itemize}
+	\item The timestamp is used as a seed to generate a pseudo-random number. As a result, if an attacker knows the algorithm for generating a pseudo-random number and the approximate time of its generation, then he can, with a high probability, brute-force the private key (password) generated by such an algorithm.
+	\item Even if other data are used in addition to timestamp, standard pseudo-random number generators generate fairly predictable sequences, which provides attackers with the ability to brute force passwords (hashes).	
+\end{itemize}
+The software random number generator used in the blockchain is based on double computation of the hash function with a dynamic change in the initial state. As the initial state, data are used that have characteristics like those of random processes. The quality of the random sequence generated by the pseudo-random sequence generator is no worse than $0.5+D$ per binary sign
+for $|D| <0.01$,  which satisfies the hypothesis of a uniform distribution of the analyzed sequence
+of random numbers.
+
+\subsubsection{Transaction types}
+
+\begin{itemize}
+	\item Sending Aureus Securities AG tokens.
+	\item Announcement for registration of a node.
+	\item Announcement of the exclusion of a node.
+	\item New genesis block (truncation).
+	\item Multisign transaction to register a new token.
+	\item Multisign token issue / reverse issue transaction.
+	\item Informational transaction, a transaction containing an arbitrary text field, for example, the address of the auditors' report. 
+\end{itemize}
+
+\subsubsection{Wallets}
+
+\begin{itemize}
+	\item Wallet address - a sequence of characters in Base58checkerMod2 encoding, which is recorded in a transaction posted on the blockchain.
+	\item You can receive and accept tokens registered in the Aureus Securities AG blockchain on the wallet.
+	\item Types of wallets:
+\begin{itemize}
+		\item Web:\begin{itemize}
+		\item For settlements (transactions) and balance check.
+		\item Available on a secure resource of Aureus Securities AG at \href{https://wallet.swissaureus.com}{https://wallet.swissaureus.com}, \href{https://wallet.swissaureus.ch}{https://wallet.swissaureus.ch}. 
+		\item When working with this wallet, the private key is not sent to the company's servers. 
+		
+	\end{itemize}
+		\item Light:\begin{itemize}
+			\item For settlements (transactions) and balance check.
+			\item Uses a special protocol that allows obtaining the necessary blocks and checking only the Merkle tree, and not the entire blockchain.
+			
+		\end{itemize}
+	
+	\item Standard:\begin{itemize}
+		\item Stores the entire blockchain.
+		\item Can be registered as a node.
+		
+	\end{itemize}
+
+\item Multisign:\begin{itemize}
+	\item	A virtual wallet, a transaction from which the system accepts only if there are several signatures.
+\end{itemize}
+
+	
+\end{itemize}
+
+	\end{itemize}
+
+
+\section{Pratical application}
+
+\subsection{Free international payments}
+
+The cryptocurrency market has grown in large part due to the demand for free, fast and inexpensive international payments. This is especially true in China, where the circulation of currencies is highly restricted by the state. \\
+
+According to the analysis of the participants of the Money 20/20 conference in Singapore, no
+payment system allows conducting cross-border transactions of more than 5,000 USD. The only
+tool for transferring more than 5,000 - 10,000 USD between states is SWIFT. But to make a
+transfer, you will need to fill out a lot of documents, wait for the bank to check the documents,
+discuss the transfer with the currency control manager, and then wait several hours for the
+transfer to be completed. SWIFT cost is about 1\%.\\
+
+Aureus Securities AG allows you to transfer any amount free of charge anywhere in the world in a few seconds without talking to bank managers.
+
+To get Aureus Securities AG blockchain tokens, you need to contact the office at. To receive money instead of tokens, you will need to go through KYC authorization and after that the money will be sent to the provided bank details. 
+
+\subsection{Using the infrastructure of Aureus Securities AG}
+
+Aureus Securities AG blockchain is open source, any enthusiast or company can install the blockchain node software. Then, using the API to access your own blockchain network node, you can conduct transactions with tokens registered with Aureus Securities AG, bypassing the infrastructure of Aureus Securities AG. To deploy the software and describe the API for working
+with the blockchain node, you need to go to the Aureus Securities AG website.
+Thus, anyone can deploy their own system on top of the Aureus Securities AG blockchain and use it for their own purposes 
+
+\section{Legal framework}
+
+Legal Aureus Securities AG is listed on the official website of the company. 
+
+\section{Explanation of the algorithm of the \textit{sdbft} consensus}\label{ExtAlg_sdBFT} 
+
+\begin{enumerate}
+	
+	\item
+	 Before starting work, we have a peer-to-peer network with nodes that have their own network address and a unique number that all network participants know. For example, we will have 13 network participants, we will number all nodes with numbers from 1 to 13. We will also agree that the consensus will include 5 nodes. 
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f1.pdf_tex}
+		\label{F1}
+		%	\caption{}
+	\end{figure}
+	The nodes working in the blockchain will be marked in blue. The nodes participating in the consensus will be shown in green. The master node will be highlighted in orange. Nodes that are in abnormal operation will be marked in red.
+	\item The beginning of the consensus work. Let all nodes of the peer-to-peer network receive block 1. The received block contains information that will allow function $f$ (see Appendix A) to create a random sequence. Let this sequence be the following - № 3,5,7,11,13. Mark the nodes with color № 3,5,7,11,13.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f2.pdf_tex}
+		\label{F2}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	As shown in the picture above, node № 3 has been marked orange to indicate that it is a master node. From this moment, the nodes № 3,5,7,11,13 participate in the consensus.
+	
+	\item
+	Let node № 3 receive a new transaction from node № 2. Node № 3 checks if the transaction is correct, if it is recognized as correct, then node № 3 sends it to the nodes No. 5,7,11,13.
+	
+	\item
+	At the end of the time allotted for closing the block, node № 3 sends to nodes № 5, 7, 11 and 13 a message about block closing.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f3.pdf_tex}
+		\label{F3}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	Nodes № 5,7,11 and 13 send the hash of the Merkle tree of the transactions they received and their signatures under the hash to node №3.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f4.pdf_tex}
+		\label{F4}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	Node№ 3 counts the signatures, if the signatures are correct and their number satisfies the solution of the problem of the Byzantine generals, there are at least 3 of them, then the block is considered completed. Node № 3 sends an announcement of a new block to all network nodes.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f5.pdf_tex}
+		\label{F5}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	The nodes receive block № 2. Returning to the second step of the algorithm, let the function $f$ (see Appendix A) create a random sequence based on the received blocks, let the numbers be 6,2,3,11,12
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f6.pdf_tex}
+		\label{F6}
+		%	\caption{}
+	\end{figure}
+	
+	Then the process is repeated in accordance with 3-8 algorithms.
+\end{enumerate}
+
+\subsubsection {Error handling with the sdbft \textit{sdbft}algorithm}
+\paragraph{Master node unavailable}
+\begin{enumerate}
+	\item
+	We repeat Algorithm 1 and 2.
+	
+	\item
+	Before starting work, we have a peer-to-peer network with nodes that have their own network address and a unique number that all network participants know. For example, we will have 13 network participants, we will number all nodes with numbers from 1 to 13. We will also agree that the consensus will include 5 nodes.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f1.pdf_tex}
+		\label{F7}
+		%	\caption{}
+	\end{figure}
+	
+	\item The beginning of the consensus work. Let all nodes of the peer-to-peer network receive block 1. The received block contains information that will allow function $f$ (see Appendix A) to create a random sequence. Let this sequence be the following - №3,5,7,11,13. Site № 3 is unavailable. We mark the nodes with color.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f8.pdf_tex}
+		\label{F8}
+		%	\caption{}
+	\end{figure}
+	
+	
+	\item The escort nodes will not receive messages about the block closing, the blockchain network proceeds to the next round (see Appendix A).
+	\item	Returning to the second step of the algorithm, let the function $f$ (see Appendix A) create a random sequence based on the received block and the round number, let the numbers be 7,1,4,12,13. The blockchain network will look like this.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f9.pdf_tex}
+		\label{F9}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	 Further, the algorithm will be executed normally in accordance with 3-8.
+	
+\end{enumerate}
+
+\paragraph{Escort node not available}
+\begin{enumerate}
+	\item
+	We repeat Algorithm 1 and 2.
+	
+	\item
+	Before starting work, we have a peer-to-peer network with nodes that have their own network address and a unique number that all network participants know. For example, we will have 13 network participants, we will number all nodes with numbers from 1 to 13. We will also agree that the consensus will include 5 nodes.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f1.pdf_tex}
+		\label{F10}
+		%	\caption{}
+	\end{figure}
+    \item 	The beginning of the consensus work. Let all nodes of the peer-to-peer network accept block № 1. The received block contains information that will allow function $f$ (see Appendix A) to create a random sequence. Let this sequence be the following - 3,5,7,11,13. Node 13 is not available. We mark the selected nodes with color.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f11.pdf_tex}
+		\label{F11}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	Escort Node № 13 will not receive a message about block closing and will not send its signature to close the block. If the remaining three nodes send the correct transaction signatures of the generated block, then the block will be generated. Nodes participating in the consensus will be re-elected.
+	
+	\item
+	 If the remaining three nodes send incorrect transaction signatures of the generated block, the block will not be generated. The blockchain will move to the next round. Nodes participating in the consensus will be re-elected.
+	
+\end{enumerate}
+
+\paragraph{Invalid transaction received}
+\begin{enumerate}
+	\item
+	Let node 3 receive a new transaction from node № 2. Node № 3 checks the transaction and recognizes it as invalid.
+	
+	\item
+	If node № 3 recognizes the transaction as incorrect, then it discards it, the message to node № 2 about the incorrect transaction is not sent to the nodes included in the consensus.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f12.pdf_tex}
+		\label{F12}
+		%	\caption{}
+	\end{figure}
+	
+\end{enumerate}
+
+\paragraph{The number of blocks in the blockchain is different on different nodes} \mbox{} \\ 
+A different number of blocks received at different nodes of the blockchain may be different in the case, for example, if the network was segmented and not all nodes managed to synchronize. Let's repeat 1-5 algorithms.
+
+\begin{enumerate}
+	\item
+	Before starting work, we have a peer-to-peer network with nodes that have their own network address and a unique number that all network participants know. For example, we will have 13 network participants, we will number all nodes with numbers from 1 to 13. We will also agree that the consensus will include 5 nodes.	
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f1.pdf_tex}
+		\label{F13}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	Starting the consensus work, let all peer-to-peer network nodes accept block 1. The received block contains information that will allow function $f$  (see Appendix A) to generate a random sequence. Let this sequence be the following - 3,5,7,11,13, nodes 7 and 11 have a different number of received blocks from nodes 3,5,13. We mark the selected nodes with color.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f14.pdf_tex}
+		\label{F14}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	As shown in the figure, node № 3 has been marked orange to indicate that it is a master node. From this point on, nodes 3,5,13 participate in consensus.
+	
+	\item
+	Let node 3 receive a new transaction from node № 2. Node № 3 checks if the transaction is correct, if it is recognized as correct, then node № 3 forwards it to nodes 5,7,11,13. Nodes 7 and 11 reject the transaction.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f15.pdf_tex}
+		\label{F15}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	At the end of the time to close the block, node №3 sends a message about block closing to nodes № 5,7,11,13, nodes 7 and 11 reject the message.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f16.pdf_tex}
+		\label{F16}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	Nodes 5 and 13 send the transaction hash and their signatures under the hash to node 3.
+	
+	\item
+	Node № 3 verifies the signatures of the escort nodes. Since the number of signatures of the escort nodes is not enough to accept the block, the blockchain proceeds to the next round..
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f17.pdf_tex}
+		\label{F17}
+		%	\caption{}
+	\end{figure}
+	
+\end{enumerate}
+
+\paragraph{Node rejects new block of blockchain} \mbox{} \\ 
+A host can reject a new block of the blockchain. There can be several reasons why a node rejects a block, for example, a read error from the database occurred on the node due to a software or hardware failure and the wallet balances changed. Let's repeat step 7.
+
+\begin{enumerate}
+	\item
+	 Node № 3 sends an announcement of a new block to all network nodes.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f5.pdf_tex}
+		\label{F18}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	Let node №1 reject the block.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f19.pdf_tex}
+		\label{F19}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	Node № 1 tries to find a block in the network with a different hash from the block it recognized as an erroneous one, if the node cannot find a block that satisfies it, then the node starts the blockchain resynchronization procedure, see 3.5.
+	
+\end{enumerate}
+
+\paragraph{The network rejects the new block of the blockchain} \mbox{} \\ 
+When creating a new block, theoretically, a deliberate attempt by a group of nodes to impose its own, erroneous, block may occur. Let the nodes № 3,5,7,11,13 try to impose their own, wrong block of the blockchain network. Let's repeat step 7.
+
+\begin{enumerate}
+	\item
+	Node №3 sends an announcement of a new block to all network nodes.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f20.pdf_tex}
+		\label{F20}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	All hosts reject new block.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f21.pdf_tex}
+		\label{F21}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	The blockchain proceeds to the next round and then until the next block is correctly formed.
+	
+\end{enumerate}
+
+\paragraph{Two blocks with the identical numbers appeared on the network} \mbox{} \\ 
+Two blocks with identical numbers can arise in the network only if two consensus is formed from nodes with different rounds, and this is possible if a global failure occurs in the network. For example, some of the nodes were on servers that were simultaneously rebooted. In this case, the following will occur..
+
+\begin{enumerate}
+	\item
+	Let's assume that there are two sets of nodes to create consensus - 3,5,7,11,13 and 8,9,6,1,10. Node № 3 and № 8 send an announcement of a new block to all network nodes.
+	\begin{figure}[H]
+		\centering
+		\def\svgwidth{8cm} % изменить размер
+		\input{fig/f22.pdf_tex}
+		\label{F22}
+		%	\caption{}
+	\end{figure}
+	
+	\item
+	The node, when accepting a new block, checks whether the round of block creation is included in the confidence interval of the rounds or not. Those. how much the new block's round differs from the node's own round. If the round is recognized by the node as correct, then the block is accepted. If it is recognized as invalid, then the block is rejected. Further, there are two possible ways of developing the situation: 
+	\subparagraph{a.}The rounds of the formed blocks are in the confidence interval; in this case, the first block will be accepted by the node. The probability of a block entering the blockchain will depend on which block was accepted by the majority of network nodes.
+	\subparagraph{b.} A round of one of the formed blocks is not in the confidence interval for most of the net catch. Consequently, most nodes will accept a block with a round number from the confidence interval.
+	
+\end{enumerate}
+
+\end{document}

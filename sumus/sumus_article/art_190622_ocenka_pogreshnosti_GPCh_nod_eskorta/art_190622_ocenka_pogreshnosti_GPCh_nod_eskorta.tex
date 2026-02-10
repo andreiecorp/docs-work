@@ -1,0 +1,123 @@
+\documentclass{article}
+
+\usepackage[english, russian]{babel} 
+\usepackage[utf8]{inputenc} % Включаем поддержку UTF8
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{indentfirst} % Красная строка после заголовка
+
+\usepackage{amsmath} % Расширенное форматирование формул, в т.ч. "aligned"
+
+\usepackage{graphicx,xcolor} % графика для svg
+\graphicspath{{fig/}}
+
+
+\title{Оценка погрешности ГПЧ при выборе НОД эскорта.}
+\author{noise@sumus.team}
+\date{22 июня 2019 г.}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	\dots \\
+	ГПЧ -- генератор псевдослучайной (последовательности) чисел.
+\end{abstract}
+
+\section{\textit{черновик-1}}
+
+%
+Дано подмножество натуральных чисел, взятых последовательно: $1, 2, \dots, n$.
+Пусть $x$ -- случайная величина, принимающая значение этих чисел.
+Если $x$ имеет равномерное распределение, то каждое её значение $x_i = i, i=1, \dots, n$, появляется с вероятностью (теоретической) $p_i = \frac{1}{n}$ в каждом опыте.
+
+%
+Если в эксперименте получено, что $x_i$ появляется с частотой $\omega_i\neq\frac{1}{n}$, то имеется погрешность плотности равномерного распределения реального генератора псевдослучайных чисел, которую можно вычислить так:
+\begin{equation}
+	\Delta = \sum\limits_{i=1}^{n}  \lvert p_i-\omega_i \rvert = \sum\limits_{i=1}^{n} \left\lvert\frac{1}{n}-\omega_i\right\rvert
+	\label{equation:delta}
+\end{equation}
+где $\omega_i$ равна отношению числа появлений значения $x_i=i$ в $k$ опытах,  $K \gg n ;\: i=1,\dots,n$ .
+
+%
+Формула (\ref{equation:delta}) даёт абсолютную погрешность реального ГПЧ (невязку). Относительная погрешность может быть, вообще говоря, вычислена как отношение $\Delta$ к $\sum\limits_{i=1}^{n}\lim p_i$, но поскольку $\sum\limits_{i=1}^{n}\lim p_i=1$, то формула (\ref{equation:delta}) численно равна как абсолютной так и относительной погрешности.
+
+\section{\textit{замечание-1}}
+
+%
+Если вычислять погрешность, учитывая что $1 = \sum\limits_{i=1}^{n} \frac{1}{n}$, по принципу $\varepsilon=\frac{\left|\frac{1}{n} - \frac{1}{n} \sum\limits_{i=1}^{n}\omega_i \right|}{\frac{1}{n}}$, то получим
+\begin{equation}
+		\varepsilon=\left|1 - \sum_{i=1}^{n}\omega_i \right| = 
+		\left|\frac{1}{n} - \omega_1 + \frac{1}{n} - \omega_2 + \dots + \frac{1}{n} - \omega_n \right| \neq \sum_{i=1}^{n} \left|\frac{1}{n} - \omega_i \right|
+	\label{equation:epsilon}
+\end{equation}
+
+более того
+\begin{equation}
+	\left| \sum_{i=1}^{n} \left(\frac{1}{n} - \omega_i \right) \right|
+	\le
+	\sum_{i=1}^{n} \left|\frac{1}{n} - \omega_i \right|
+	\label{equation:summa}
+\end{equation}
+
+То есть если $\frac{1}{n} - \omega_i$ имеет разные знаки для разных $i$, то формула (\ref{equation:epsilon}) не даёт полной погрешности так как погрешности разных знаков в сумме уменьшают значение погрешности, что и видно из примера
+
+\begin{figure}[h]
+%	\centering
+	\def\svgwidth{15cm} % изменить размер
+	\input{fig/ex1.pdf_tex}
+	\caption{\textit{Пример-1}.}
+	\label{figure:example_1}
+\end{figure}
+
+\begin{equation*}
+	\begin{split}
+		\Delta = |0{,}25-0{,}23|+|0{,}25-0{,}26|+|0{,}25-0{,}24|+|0{,}25-0{,}21| \\
+		= 0{,}02+0{,}01+0{,}01+0{,}04=0{,}08
+	\end{split}
+\end{equation*}
+
+\begin{equation*}
+	\left<\omega\right> = \frac{1}{4} \left( 0{,}23+0{,}26+0{,}24+0{,}21\right) = 0{,}235
+\end{equation*}
+
+\begin{equation*}
+	\frac{1}{n} - \left<\omega\right> = \left| 0{,}25 - 0{,}235 \right| = 0{,}015
+\end{equation*}
+
+\begin{equation*}
+	\frac{\frac{1}{n} - \left<\omega\right>}{\frac{1}{n}} = \frac{0{,}15}{0{,}25} = 0{,}06 \: ;
+\end{equation*}
+показано, что неравенство (\ref{equation:summa}) выполняется.
+
+\section{\textit{черновик-2}}
+
+%
+$B_{n^\prime}$ -- множество \textit{нод}, участвующих в выработке консенсуса. Пусть из $B_n\supset B_{n^\prime} \: (n\gg n^\prime)$ уже выбран \textit{мастер-узел}. Какова (теоретическая) вероятность того, что один из оставшихся $n-1$ узлов попадёт в $B_{n^\prime}$ при $n^\prime-1$ попытках? Распределение при выборе номера узла (номеров узлов) -- равномерное. Вероятность того, что конкретный узел будет выбран в первом из $n^\prime - 1$ опытов равна $\frac{1}{n-1}$. Со второй попытки -- $\frac{1}{n-2}$, \dots, с $m$-той попытки -- $\frac{1}{n-m-1}$, если $m=n^\prime-1$, то $\frac{1}{n-1-(n^\prime-1)}=\frac{1}{n-n^\prime}$. Вероятность того, что конкретный узел с номером $i$ будет выбран есть сумма этих вероятностей : 
+\begin{equation}
+	p_i = \sum_{k=1}^{n^\prime} \frac{1}{n-k}\:;\:\:i=1,\dots,n-1
+	\label{equation:p_i}
+\end{equation}
+
+%
+Пусть в результате $M$ экспериментов по определению множества $B_{n^\prime}$ узел с номером $i$ попадал в эскорт $M_i$ раз. Тогда $\omega_i=\frac{M_i}{M} \: ; \:\: \omega_i \longrightarrow p_i$ при $M \longrightarrow +\infty$
+
+%
+\underline{Замечание} $\sum\limits_{i=1}^{n} p_i \neq 1$, а значит $p_i$ должны быть нормированы.
+
+%
+Абсолютная погрешность ГПЧ в данной задаче:
+\begin{equation}
+	\Delta^*=\sum_{i=1}^{n-1}\left|p_i-\omega_i\right| = \sum_{i=1}^{n-1} \left|\sum_{k=1}^{n^\prime} \frac{1}{n-k}-\omega_i\right|
+\label{equation:delta_star}
+\end{equation}
+Поскольку все $p_i$ одинаковы, то $\sum\limits_{i=1}^{n-1}p_i=(n-1)\sum\limits_{k=1}^{n^\prime}\frac{1}{n-k}$ и тогда относительная погрешность ГПЧ в данной задаче
+\begin{equation}
+	\varepsilon^* = \frac{\Delta^*}{\sum\limits_{i=1}^{n-1} p_i} =
+	\frac{\sum\limits_{i=1}^{n-1} \left|\sum\limits_{k=1}^{n^\prime} \frac{1}{n-k}-\omega_i\right| }
+	{(n-1)\sum\limits_{k=1}^{n^\prime} \frac{1}{n-k}}
+\label{equation:epsilon_star}
+\end{equation}
+
+\end{document}

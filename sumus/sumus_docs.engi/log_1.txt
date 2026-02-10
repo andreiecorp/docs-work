@@ -1,0 +1,93 @@
+================================
+Chechking crypto methods
+
+  SHA256: ok
+  SHA384: ok
+  SHA512: ok
+  DSHA256_1: ok
+  DSHA256_2: ok
+
+test passed
+================================
+
+==================================
+this is Bitcoin structure analisys
+
+  name: c:\Users\andr\AppData\Roaming\Bitcoin\blocks\blk00000.dat
+  Data size : 134216578
+
+  Magic No: D9B4BEF9 = correct
+  Block size: 285
+  Block Header
+  Version: 1
+  hashPrevBlock : 0000000000000000000000000000000000000000000000000000000000000000
+  hashMerkleRoot: 3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a
+  time : 0x495FAB29
+  bits : 0x1D00FFFF
+  nonce: 0x7C2BAC1D
+  Transaction counter: 1
+
+test passed
+================================
+
+==================================
+this is Bitcoin structure analisys
+
+  name: c:\Users\andr\AppData\Roaming\Bitcoin\blocks\blk00001.dat
+  Data size : 134194689
+
+  Magic No: D9B4BEF9 = correct
+  Block size: 3748
+  Block Header
+  Version: 1
+  hashPrevBlock : e08e0ebbc72723ab192877ada4a9e3d73a8b88d668f93b0b1083000000000000
+  hashMerkleRoot: 6b57f41eff43fd419099df5c4864d853d973f8eaf55af544ae2b5b24607bb53c
+  time : 0x4DB3C0E1
+  bits : 0x1B00B5AC
+  nonce: 0xFA1A44EC
+  Transaction counter: 1
+
+test passed
+================================
+
+==================================
+this is Bitcoin structure analisys
+
+  name: c:\Users\andr\AppData\Roaming\Bitcoin\blocks\blk00002.dat
+  Data size : 134210442
+
+  Magic No: D9B4BEF9 = correct
+  Block size: 49038
+  Block Header
+  Version: 1
+  hashPrevBlock : 98416e83612f0ed7d7ff67a42d12a30b4a21225d2a0006ca7701000000000000
+  hashMerkleRoot: 72bdc8bd031e40badc92a22c4b7f46295764bf118cd133b957716e451b029cd0
+  time : 0x4DF9EAFB
+  bits : 0x1A132185
+  nonce: 0x295F30A6
+  Transaction counter: 1
+
+test passed
+================================
+
+==================================
+this is Bitcoin structure analisys
+
+  name: c:\Users\andr\AppData\Roaming\Bitcoin\blocks\blk00003.dat
+  Data size : 134184095
+
+  Magic No: D9B4BEF9 = correct
+  Block size: 33308
+  Block Header
+  Version: 1
+  hashPrevBlock : f363906d2f91c0e492ab7a2e71e9ab62e65f52748be93e3ec806000000000000
+  hashMerkleRoot: 8726767a9b3c0aded3ac7e632d2303d5f6999fda3f1bdf0072856c4ee62f3afb
+  time : 0x4E251E32
+  bits : 0x1A0ABBCF
+  nonce: 0xCA991F9C
+  Transaction counter: 1
+
+test passed
+================================
+
+finished: ok

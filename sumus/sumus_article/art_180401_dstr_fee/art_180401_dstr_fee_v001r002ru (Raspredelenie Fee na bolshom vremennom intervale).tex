@@ -1,0 +1,95 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english, russian]{babel} 
+\usepackage{amscd, amsmath, amssymb, amsthm, enumerate, indentfirst, longtable, ifthen} %% addlibrary rom mathematic 
+\usepackage{ragged2e}
+\usepackage{microtype}
+\usepackage{indentfirst}
+\usepackage{setspace}
+\setstretch{1.15} % interval 
+
+ %%picture 
+\RequirePackage{caption}
+\DeclareCaptionLabelSeparator{defffis}{. }
+\captionsetup{justification=centering,labelsep=defffis}
+\usepackage{graphicx}
+\graphicspath{{pict/}}
+\DeclareGraphicsExtensions{.png,}
+ %%end picture 
+\usepackage{geometry}
+\geometry{
+ 	tmargin=15mm,         % Up 
+ 	bmargin=15mm,         % Down 
+ 	lmargin=15mm,         % left поле
+ 	rmargin=15mm,         % right  
+}
+
+%% new command 
+\newcommand{\jj}{\righthyphenmin=20 \justifying}
+%opening
+\date{Апрель 1, 2018}
+\title{Распределение Fee на большом временном интервале }
+%%\author{a@sumus.team, k@sumus.team, rr@sumus.team}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract} 
+	Пусть $fee$ - непрерывная случайная величина $\geq 0$.  
+\end{abstract}
+
+\section{Введение}\addcontentsline{toc}{section}{Введение}
+При функционировании сети блокчейн стремление времени $t$ к $+\infty$ эквивалентно количеству опытов $m$ по достижению консенсуса на текущий момент  $t$. Тогда $t \rightarrow \infty \backsim  m \in \mathbb{N}$. Если в момент $t_m$  определяется мастер-узел и эскорт $m$ раз с начала функционирования сети, то $m$  и есть условное "время". \\
+
+\underline{Задача.} 
+
+Доказать, что при $t \rightarrow +\infty (m \rightarrow +\infty )$ конечный узел из множества $B_n$ получит $fee$  в соответствии с распределением $f(fee)$ и своим "присутствием" в сети. \\
+
+\underline{Решение.}
+
+Будем считать $fee$ непрерывной случайной величиной, распределенной во времени, т.е. случайным процессом. Если в общем случае $fee(t)$ - нестационарный случайный процесс с функцией плотности $f(fee,t)$. В момент времени $t^* f=f(fee,t^*)$ - плотность распределения случайной величины $fee$ с параметрами, значения которы достигнуты к моменту $t^*$ (плотности вероятности в "сечении" $t^*$ случайного процесса $fee(t)$).
+
+Поскольку в силу равномерности распределения номеров узлов в $B_n$ каждый узел в $\forall$ момент $t_m$ может стать мастер-узлом с одинаковой вероятностью $\frac{1}{n}$, $n$ - фиксированное натурально число, то $fee$, получаемая $m$-узлом после закрытия блока зависит только от $f(fee,t^*),t^*=t_n$. Если предположить, что все узлы из $B_n$ \underline{постоянно} находятся в сети, то все они находятся в равном положении и с одинаковой вероятностью получают $fee$ в одном и том же диапазоне (разумеется $m$ должно быть "достаточно велико" $m \gtrsim n$ ) независимо от стационарности или нестационарности случайного процесса $fee(t)$.
+
+
+Рассмотрим случай стационарного нормального случайного процесса $fee(t)$ с постоянным математическим ожиданием $M_{fee}$ и среднеквадратическим отклонением $\sigma_{fee}$. Тогда $\forall$ узел в момент закрытия блока, соответствующего моменту $t_m$ выбора $m$-узла и эскорта, получает $fee$ в диапазоне $(M_{fee}-3\sigma_{fee} , M_{fee}+3\sigma_{fee})$ с вероятностью $\frac{\Phi(\frac{3}{n})}{n}\approx\frac{0,997}{n}$. Обозначим полученную $fee$ как $fee_m$
+
+Если некоторый узел выбирался $m$-узлом $\overline{m}$ раз к моменту $t_m$, но принял задачу по закрытию блока $\widetilde{m}$ раз $(\widetilde{m} \le  \overline{m})$ то за закрытие текущего блока он получает $\gamma =\frac{\widetilde{m}}{\overline{m}}fee_m$. Остаток $\frac{\overline{m}-\widetilde{m}}{\overline{m}}fee_m$ суммируется со значением $fee_{m+1}$. Это можно назвать - правило мотивации узла. 
+
+В случае нестационарного случайного процесса $fee(t)$ ситуация с постоянно подключёнными узлами в смысле равновероятности получения $fee$ (по сравнению с остальными узлами) не изменится. Если же некоторый узел на каких-то интервалах времени не принимал задание, т.е. был вне сети $(\widetilde{m} <  \overline{m})$, то, например, в случае роста $M_{fee}(t)$ и/или сокращения $\sigma_{fee}(t)$ узел отключавшийся при больших временах чаще, чем при малых, то он потеряет в вознаграждении гораздо больше, чем постоянно подключённые узлы по сравнению со случаем стационарного случайного процесса $fee(t)$. Но это произойдёт только по "вине"  самого узла.
+
+
+
+\begin{thebibliography}{1}
+	\bibitem{key-1} Satoshi Nakamoto (2009). ``Bitcoin: A Peer-to-Peer
+	Electronic Cash System''. www.bitcoin.org .
+	
+	\bibitem{key-2} (2018.01.10). ``Transactions Speeds: How Do Cryptocurrencies
+	Stack Up To Visa or PayPal?''. https://howmuch.net/articles/crypto-transaction-speeds-compared
+	. 
+	
+	\bibitem{key-3} BitFury Group (2015.09.13). ``Proof of Stake versus
+	Proof of Work''. http://bitfury.com/content/5-white-papers-research/pos-vs-pow-1.0.2.pdf
+	.
+	
+	\bibitem{key-4} Andrew Miller, Yu Xia, Kyle Croman, Elaine Shi, Dawn
+	Song (2016). ``The Honey Badger of BFT Protocols''. https://eprint.iacr.org/2016/199.pdf
+	.
+	
+	\bibitem{key-5} Leslie Lamport, Robert Shostak, Marshall Pease (1982).
+	``The Byzantine Generals Problem''. ACM Transactions on Programming
+	Languages and Systems. T.4, 3: 382\textendash 401
+. 
+	
+	\bibitem{key-6} National Institute of Standards and Technology. SHA-3
+	Standard: Permutation-Based Hash and Extendable-Output Functions.
+	https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+	.
+		
+	\bibitem{key-7} S.Josefsson, I.Liusvaara. ``Edwards-Curve Digital
+	Signature Algorithm (EdDSA)''. IETF RFC. https://tools.ietf.org/html/rfc8032
+	. 
+\end{thebibliography}
+\end{document}

@@ -1,0 +1,107 @@
+\documentclass[12pt,twoside,a4paper]{article}
+
+\usepackage[utf8]{inputenc} % Включаем поддержку UTF8
+\usepackage[russian]{babel} % [english, russian]
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{indentfirst} % Красная строка после заголовка
+
+\usepackage{enumitem} % расширение для enumerate
+%\makeatletter
+%\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+%\makeatother
+
+\usepackage{float}
+
+% overset
+\usepackage{amsmath}
+
+
+\usepackage{graphicx,xcolor} % графика для svg
+\graphicspath{{fig/}}
+
+\title{Обмен ключами с использованием технологии \textbf{blockchain}.}
+\author{engi@sumus.team}
+\date{16 июля 2020 г.}
+
+\begin{document}
+
+\maketitle
+
+\section{Постановка задачи}
+
+\subsection{Термины}
+
+\begin{itemize}
+	\item \textit{Консьюмер} --- сущность, запрашивающая выполнение вычислительной задачи.
+	\item \textit{Продюсер} --- сущность, предоставляющая ресурс для выполнения вычислительной задачи.
+	\item \textit{blockchain} --- сетевая база данных, не допускающая изменение уже внесённых записей.
+\end{itemize}
+
+\subsection{Процесс}
+
+\begin {enumerate}[label=\alph*)]
+	\item \textit{Консьюмер} размещает запись $RC_1$ запрашивающую выполнение вычислительной задачи. 
+	\item \textit{Продюсер} получает запись $RC_1$ и размещает запись $RP_{A1}$ о намерении предоставить ресурс для выполнения запрошенной вычислительной задачи. 
+	\item \textit{Консьюмер} получает запись $RP_{A1}$ и размещает запись $RC_{A1}$, подтверждающую начало выполнения вычислительной задачи. 
+\end{enumerate}
+
+\subsection{Задача}
+
+Требуется дополнить содержимое записей $RC_1$, $RP_{A1}$, $RC_{A1}$ такими полями, чтобы выполнялись условия:
+
+\begin{itemize}
+	\item Количество шагов обмена должно быть минимальным, желательно не более 3 -- по количеству шагов \textit{процесса}.
+	\item В результате \textit{процесса}, \textit{консьюмер} и \textit{продюсер} должны получить одинаковое число, недоступное другим обозревателям \textit{blockchain}.
+	\item Весь обмен при выполнении \textit{задачи} должен происходить через \textit{blockchain}.
+\end{itemize}
+
+\section{Предлагаемое решение №1}
+
+\subsection{Положения}
+
+Существует обратимое криптографическое преобразование с ключом, обладающее свойством коммутативности \footnote{например, алгоритм RSA}. Обозначим пару шифрование-расшифрование таких преобразований:
+
+\begin{equation}
+	\begin{split}
+	n \xrightarrow{ \mathcal{F}      (k_a) } n_a \\
+	n_a \xrightarrow{ \mathcal{F} ^{-1}(k_a) } n 
+	\end{split}
+	\label{equ_1}
+\end{equation}
+
+Коммутативностью называется свойство преобразования для которого, при многократном шифровании, для расшифрования не важен порядок обратных преобразований.
+
+\begin{equation}
+	\begin{split}
+	n \xrightarrow{\mathcal{F}(k_a)} n_a \xrightarrow{\mathcal{F}(k_b)} n_{ab} \\
+	n_{ab} \xrightarrow{\mathcal{F}^{-1}(k_b)} n_a \xrightarrow{\mathcal{F}^{-1}(k_a)} n \\
+	n_{ab} \xrightarrow{\mathcal{F}^{-1}(k_a)} n_b \xrightarrow{\mathcal{F}^{-1}(k_b)} n \\
+	\end{split}
+	\label{equ_1}
+\end{equation}
+
+\subsection{Алгоритм}
+
+\begin {enumerate}[label=\alph*)]
+	\item \textit{Консьюмер} создаёт: \\ 
+	ключ $k_a$, \\
+	число $n$
+	\item \textit{Консьюмер} шифрует число $n$ \\
+	$n \xrightarrow{\mathcal{F}(k_a)} n_a$, \\
+	заносит $n_a$ в $RC_1$.
+	\item \textit{Продюсер} создаёт: \\ 
+	ключ $k_b$
+	\item \textit{Продюсер} получает число $n_a$ из записи $RC_1$, шифрует \\ 
+	$n_a \xrightarrow{\mathcal{F}(k_b)} n_{ab}$, \\
+	заносит $n_{ab}$ в $RP_{A1}$.
+	\item \textit{Консьюмер} получает число $n_{ab}$ из записи $RP_{A1}$, расшифрует \\ 
+	$n_{ab} \xrightarrow{\mathcal{F}^{-1}(k_a)} n_b$, \\
+	заносит $n_b$ в $RC_{A1}$.
+	\item \textit{Продюсер} получает число $n_b$ из записи $RC_{A1}$, расшифрует \\ 
+	$n_b \xrightarrow{\mathcal{F}^{-1}(k_b)} n$
+\end{enumerate}
+
+В результате обмена \textit{консьюмер} и \textit{продюсер} получают число $n$ недоступное другим обозревателям \textit{blockchain}.
+
+\end{document}

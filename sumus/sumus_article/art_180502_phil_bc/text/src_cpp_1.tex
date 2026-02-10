@@ -1,0 +1,18 @@
+MsgPack::object message{ 
+
+{ "type", "CreateToken" },  
+
+// string
+{ "name", name }, 
+
+// string amount token
+{ "fundsAmount", assetAmount}, 
+
+// wallet address
+{ "user", 
+MsgPack::binary(WalletAddress.begin(),WalletAddress.end()) },	
+
+// array<unsigned char, 64>
+{ "signature", MsgPack::binary(signature.begin(), signature.end()) }
+	 	
+};

@@ -1,0 +1,1195 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language russian
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language french
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Алгоритм консенсуса для корпоративных сетей блокчейн.
+ 
+\end_layout
+
+\begin_layout Abstract
+Предлагается новый алгоритм достижения консенсуса stake distributed Byzantine
+ Fault Tolerant (sdBFT), позволяющий увеличить на несколько порядков количество
+ узлов сети, участвующих в достижении консенсуса и существенно повысить
+ скорость транзакций.
+ В алгоритме используется аналогия с задачей византийских генералов.
+ Для обеспечения равномерного распределения номеров узлов в сети предлагается
+ применять двойное хеширование.
+ 
+\end_layout
+
+\begin_layout Section*
+Введение 
+\end_layout
+
+\begin_layout Standard
+При создании монеты биткойн и технологии блокчейн Сатоши Накамото использовал
+ в качестве алгоритма консенсуса алгоритм доказательства работы, так называемый
+ Proof-of-Work (PoW) 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-1"
+
+\end_inset
+
+.
+ С ростом популярности технологии блокчейн проявились особенности алгоритма
+ PoW, связанные с низкой скоростью транзакций и, соответственно, их высокой
+ стоимостью.
+ 
+\end_layout
+
+\begin_layout Standard
+Многие эксперты из IT-индустрии создали новые либо адаптировали уже существующие
+ алгоритмы консенсуса, устраняющие слабые стороны PoW.
+ В результате появились алгоритмы консенсуса PoS, DPoS, LPoS, PoE, PoIT,
+ pBFT.
+ Данной статьей мы постарались внести свой вклад в развитие алгоритмов консенсус
+а.
+ 
+\end_layout
+
+\begin_layout Standard
+Необходимость создания собственного алгоритма консенсуса возникла при попытке
+ создать блокчейн, отвечающий следующим требованиям к сети блокчейн: 
+\end_layout
+
+\begin_layout Standard
+Время создания нового блока не более 1 мин.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Тип сети блокчейн – корпоративный.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Общее количество узлов, которые могут принять участие в выработке консенсуса,
+ может меняться от 
+\begin_inset Formula $10^{3}$
+\end_inset
+
+ до 
+\begin_inset Formula $10^{4}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Высокая скорость транзакций – не менее 
+\begin_inset Formula $10^{3}$
+\end_inset
+
+ транзакций в секунду.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Реализации алгоритма не требует существенных энергозатрат.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Реализация алгоритма блокчейна не должна требовать существенных вычислительных,
+ по сравнению с блокчейнами PoW, мощностей.
+ 
+\end_layout
+
+\begin_layout Standard
+Ранее предложенные алгоритмы консенсуса признаны авторами не удовлетворяющими
+ перечисленные выше требования по следующим причинам.
+ 
+\end_layout
+
+\begin_layout Standard
+Консенсус PoW – самый первый тип консенсуса, реализованный в блокчейне валюты
+ Bitcoin.
+ Консенсус отличается невысокой скоростью закрытия блока и малой скоростью
+ транзакций, согласно приведенным данным 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-2"
+
+\end_inset
+
+ скорость транзакций валюты Bitcoin составляет всего 7 транзакций в секунду.
+ Формирование блока блокчейна при консенсусе PoW требует значительных вычислител
+ьных ресурсов.
+ Причем чем больше у участника консенсуса вычислительных ресурсов, тем выше
+ вероятность для него сформировать блок, что приводит к непроизводительной
+ вычислительной гонке между участниками консенсуса.
+ 
+\end_layout
+
+\begin_layout Standard
+Консенсус Proof-of-Stake (PoS) и его вариации DPoS, LPoS были предложены,
+ чтобы решить проблемы консенсуса PoW, связанные с высокими вычислительными
+ издержками и малой скоростью закрытия блока транзакций 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-3"
+
+\end_inset
+
+.
+ Несмотря на высокую скорость закрытия блока и низкие требования к аппаратным
+ ресурсам, у алгоритма PoS есть недостатки.
+ Проблемой PoS является централизация монет (ресурсов системы).
+ Пользователь блокчейна, имеющий максимальный объем ресурсов системы, получает
+ еще больше монет за оказание услуг по подтверждению блока.
+ Следовательно, количество узлов, участвующих в консенсусе, будет эволюционно
+ уменьшаться, что приведет к несоответствию требованиям к блокчейну, изложенным
+ выше.
+ 
+\end_layout
+
+\begin_layout Standard
+Консенсус pBFT – еще одна альтернатива алгоритму консенсуса PoW.
+ В мире предложено несколько реализаций консенсуса pBFT, один из них – «Honey
+ Badger» 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-4"
+
+\end_inset
+
+.
+ Как показано на рис.
+ 1 реализация pBFT консенсуса работает тем лучше, чем меньше количество
+ узлов, участвующих в консенсусе.
+ 
+\end_layout
+
+\begin_layout Standard
+Рис.
+ 1 
+\end_layout
+
+\begin_layout Standard
+Графики зависимости времени задержки формирования блока от скорости поступающих
+ транзакций 
+\end_layout
+
+\begin_layout Standard
+На рисунке 1 показан график зависимости времени задержки формирования блока
+ от скорости поступающих транзакций, где Nodes/Tolerance – соотношение общего
+ количества узлов, достигающее консенсуса, и числа узлов, не достигших консенсус
+а.
+ 
+\end_layout
+
+\begin_layout Standard
+Кривая 1 показывает изменение времени закрытия блока в зависимости от скорости
+ поступающих транзакций для 32 узлов, кривая 2 – для 40 узлов, кривые 3...6
+ – для 48, 56, 64 и 104 узлов соответственно.
+ 
+\end_layout
+
+\begin_layout Standard
+Наиболее эффективно консенсус работает при количестве узлов не превышающим
+ 40, скорость транзакций для такого числа узлов достигает 
+\begin_inset Formula $2\cdot10{}^{4}$
+\end_inset
+
+ транзакций в секунду, при этом время закрытия блока не превышает 40 секунд.
+ 
+\end_layout
+
+\begin_layout Standard
+Если количество узлов превышает 60, кривые 5 и 6, то скорость транзакций
+ для такого числа узлов не превышает 
+\begin_inset Formula $0.5\cdot10{}^{3}$
+\end_inset
+
+ транзакций в секунду, при этом время закрытия блока превышает 100 секунд.
+ Время консенсуса для 104 узлов достигало 6 минут.
+ 
+\end_layout
+
+\begin_layout Standard
+Авторы предлагают другой подход для решения проблемы потери производительности
+ в алгоритме pBFT, реализованный в алгоритме stake distributed Byzantine
+ Fault Tolerant (sdBFT) консенсуса.
+ 
+\end_layout
+
+\begin_layout Section*
+Основные положения и допущения sdBFT 
+\end_layout
+
+\begin_layout Standard
+Мы исходим из того, что задача достижения консенсуса в первом приближении
+ сводится к получению согласованного решения участниками распределенной
+ системы в случае, если некоторое их количество не приняло участие в согласовани
+и решения.
+ Это может произойти по следующим причинам: 
+\end_layout
+
+\begin_layout Standard
+Ошибка при передаче сообщения о принятии решения одним из участников.
+ 
+\end_layout
+
+\begin_layout Standard
+Слишком медленная передача сообщения о принятии решения одним из участников.
+ 
+\end_layout
+
+\begin_layout Standard
+Сбой в работе участника в системе.
+ 
+\end_layout
+
+\begin_layout Standard
+Введение в заблуждение при принятии решения в системе, как умышленное, так
+ и неумышленное.
+ 
+\end_layout
+
+\begin_layout Standard
+Если рассматривать причины 1-3 неучастия в выработке консенсуса, то для
+ принятия решения достаточно чтобы выполнялось условие 
+\begin_inset Formula $n>m+1$
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-5"
+
+\end_inset
+
+, где 
+\begin_inset Formula $m$
+\end_inset
+
+ – количество участников, которые не участвовали в консенсусе, а 
+\begin_inset Formula $n$
+\end_inset
+
+ – количество участников принявших решение.
+ В случае появления в системе участников, не участвующих в консенсусе по
+ четвертой причине задача сводится к задаче византийских генералов, которая
+ имеет решение, когда
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+n>3\cdot m
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Если вместо 
+\begin_inset Formula $n$
+\end_inset
+
+ генералов рассмотреть 
+\begin_inset Formula $n$
+\end_inset
+
+ узлов блокчейна, участвующих в выработке консенсуса, то очевидно, что эта
+ задача подобна задаче византийских генералов.
+ Для решения проблемы роста времени достижения консенсуса предлагается из
+ конечного множества узлов 
+\begin_inset Formula $B_{n}$
+\end_inset
+
+ , мощность этого множества 
+\begin_inset Formula $\overline{B}_{n}=n$
+\end_inset
+
+, выделять подмножество 
+\begin_inset Formula $\overline{B}_{n^{'}}\;(B_{n^{'}}=n^{'})$
+\end_inset
+
+ и исходя из предположения о равномерности распределения свойств узлов во
+ всей сети блокчейн решать задачу не на 
+\begin_inset Formula $B_{n}$
+\end_inset
+
+, а на 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+ при 
+\begin_inset Formula $n≫n^{'}$
+\end_inset
+
+.
+ Общее количество узлов во всей сети блокчейн положим равным 
+\begin_inset Formula $N$
+\end_inset
+
+.
+ Обозначим множество этих узлов 
+\begin_inset Formula $A_{N}$
+\end_inset
+
+.
+ Пусть задана функция: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+d:T\mapsto Y_{B_{n}},\;d=d(t),\;t\in T
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+где 
+\begin_inset Formula $t$
+\end_inset
+
+ – независимая переменная, соответствующая текущему времени.
+ Будем считать, что значение 
+\begin_inset Formula $d\in Y_{B_{n}}$
+\end_inset
+
+ функции (2) соответствует текущему состоянию 
+\begin_inset Formula $B_{n}$
+\end_inset
+
+ в момент 
+\begin_inset Formula $t$
+\end_inset
+
+.
+ Пусть задана функция: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+f:Y_{B_{n}}\mapsto\mathbb{N_{\mathit{N}}},\;f=f(d),\;d\in Y_{B_{n}}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+где 
+\begin_inset Formula $\mathbb{N}_{\mathit{N}}$
+\end_inset
+
+ – конечное подмножество множества натуральных чисел 
+\begin_inset Formula $\mathbb{N}$
+\end_inset
+
+ мощности 
+\begin_inset Formula $N$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Пусть из 
+\begin_inset Formula $B_{n}$
+\end_inset
+
+ случайным образом выбрано подмножество 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+, причем 
+\begin_inset Formula $n^{'}$
+\end_inset
+
+ задаётся.
+ Тогда получим:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+B_{n^{'}}\subset B_{n}\subseteq A_{N}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Будем считать, что 
+\begin_inset Formula $Y_{B_{n^{'}}}$
+\end_inset
+
+ – множество значений всех 
+\begin_inset Formula $d$
+\end_inset
+
+, соответствующих всем текущим состояниям 
+\begin_inset Formula $B_{n^{'}},\;Y_{B_{n^{'}}}\subseteq Y_{B_{n}}$
+\end_inset
+
+.
+ Пусть функция 
+\begin_inset Formula $f$
+\end_inset
+
+ отображает 
+\begin_inset Formula $Y_{B_{n^{'}}}$
+\end_inset
+
+ на множество 
+\begin_inset Formula $\mathbb{N}_{n^{'}},\;\overline{\mathbb{N}}_{n^{'}}=n^{'}$
+\end_inset
+
+.
+ Будем считать, что номера узлов, полученных таким отображением есть 
+\begin_inset Formula $j_{k},\;k=1,\ldots,n^{'}$
+\end_inset
+
+.
+ Будем полагать, что 
+\begin_inset Formula $j_{\hat{k}}$
+\end_inset
+
+ – номер назначаемого мастер-узла, 
+\begin_inset Formula $1\leq\hat{k}\leq n^{'}$
+\end_inset
+
+.
+ Если 
+\begin_inset Formula $b$
+\end_inset
+
+ – формируемый блок, в отношении которого в некоторый момент времени 
+\begin_inset Formula $t^{'}$
+\end_inset
+
+ множество узлов 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+ стремится достичь консенсуса, то функцию хеширования SHA-3 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-6"
+
+\end_inset
+
+ над этим блоком, обозначим 
+\begin_inset Formula $H(b)$
+\end_inset
+
+, а ее значения обозначим 
+\begin_inset Formula $h$
+\end_inset
+
+.
+ Тогда результат вычисления электронной подписи, например, по алгоритму
+ EdDSA 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "key-8"
+
+\end_inset
+
+ с параметрами эллиптической кривой edwards25519 (???) будет равен 
+\begin_inset Formula $s=sig(h)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Section*
+Описание алгоритма 
+\end_layout
+
+\begin_layout Enumerate
+Пусть в момент времени 
+\begin_inset Formula $\hat{t}\in[t,t^{'})$
+\end_inset
+
+ узел с номером 
+\begin_inset Formula $k\;(1\leq k\leq N)$
+\end_inset
+
+ осуществляет запись 
+\begin_inset Formula $I$
+\end_inset
+
+ в блокчейн 
+\begin_inset Formula $B_{n}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Выберем все 
+\begin_inset Formula $j_{k}$
+\end_inset
+
+, включая 
+\begin_inset Formula $j_{\hat{k}}$
+\end_inset
+
+ с помощью функции 
+\begin_inset Formula $f$
+\end_inset
+
+.
+ Выработка консенсуса осуществляется на полуинтервале 
+\begin_inset Formula $[t,t^{'})$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+В случае признания мастер-узлом допустимым включение записи 
+\begin_inset Formula $I$
+\end_inset
+
+ в блок 
+\begin_inset Formula $b$
+\end_inset
+
+, мастер-узел передаёт всем узлам из 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+ эту запись для проверки и включения в блок 
+\begin_inset Formula $b$
+\end_inset
+
+.
+ В противном случае запись 
+\begin_inset Formula $I$
+\end_inset
+
+ отвергается без уведомления.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Новая запись включается в блок до наступления момента 
+\begin_inset Formula $t^{'}$
+\end_inset
+
+.
+ Мастер-узел рассылает сообщение тем же узлам о фиксации блока 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $b$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+.
+ Все узлы из 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+ вычисляют значение хеш-функции 
+\begin_inset Formula $H(b)$
+\end_inset
+
+ равное, допустим, 
+\begin_inset Formula $h$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Каждый узел вычисляет электронную подпись: 
+\begin_inset Formula 
+\begin{equation}
+s_{l}=sig(h),\;\begin{cases}
+k=1,\ldots,n^{'}\\
+l\neq k
+\end{cases}
+\end{equation}
+
+\end_inset
+
+и передаёт её на узел 
+\begin_inset Formula $j_{\hat{k}}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Мастер-узел ожидает электронные подписи время 
+\begin_inset Formula $\varDelta t$
+\end_inset
+
+ после наступления момента 
+\begin_inset Formula $t^{'}$
+\end_inset
+
+.
+ В момент 
+\begin_inset Formula $\varDelta t+t^{'}$
+\end_inset
+
+ на мастер-узле формируется кортеж 
+\begin_inset Formula 
+\begin{equation}
+s_{b}=(s_{1},\ldots,s_{j}),\;1\leq j<n^{'}
+\end{equation}
+
+\end_inset
+
+Мастер-узел проверяет каждую подпись из (6) и подсчитывает число корректных
+ подписей.
+ Подписи некоторых узлов из 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+ могут оказаться голосующими "против" или некорректными в том случае, когда
+ в 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+ окажется узел с некоторым номером 
+\begin_inset Formula $j_{\tilde{k}},\;1\leq\tilde{k}\leq n^{'}$
+\end_inset
+
+ который 
+\begin_inset Newline linebreak
+\end_inset
+
+а) признает запись 
+\begin_inset Formula $I$
+\end_inset
+
+ некорректной; 
+\begin_inset Newline linebreak
+\end_inset
+
+б) в момент времени 
+\begin_inset Formula $\tilde{t}\in[t,t^{'})$
+\end_inset
+
+ имеет состояние блокчейна, 
+\begin_inset Formula $\tilde{d}$
+\end_inset
+
+ отличное от состояния 
+\begin_inset Formula $d$
+\end_inset
+
+ для узла
+\begin_inset Formula $j_{\hat{k}}$
+\end_inset
+
+;
+\begin_inset Newline linebreak
+\end_inset
+
+в) исказит запись 
+\begin_inset Formula $I$
+\end_inset
+
+ при формировании блока блокчейна.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Мастер-узел вычисляет количество корректных подписей μ и проверяет выполнение
+ неравенства:
+\begin_inset Formula 
+\begin{equation}
+\mu>\frac{2}{3}n^{'}
+\end{equation}
+
+\end_inset
+
+Если (7) не выполняется, то мастер-узел делает вывод, что консенсус не достигнут
+, в противном случае для блока 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $b$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+ составляется число:
+\begin_inset Formula 
+\begin{equation}
+b\parallel s_{k_{1}}\parallel\ldots\parallel s_{k_{\mu}},\;1\leq l<n^{'},\;l=1,\ldots,\mu
+\end{equation}
+
+\end_inset
+
+для которого вычисляется 
+\begin_inset Formula $H(b\parallel s_{1}\parallel\ldots\parallel s_{\mu})$
+\end_inset
+
+ и 
+\begin_inset Formula $sig$
+\end_inset
+
+, являющаяся электронной подписью узла с номером 
+\begin_inset Formula $j_{\hat{k}}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Число 
+\begin_inset Formula 
+\begin{equation}
+d^{'}=b\parallel s_{1}\parallel\ldots\parallel s_{\mu}\parallel sig(H(b\parallel s_{1}\parallel\ldots\parallel s_{\mu}))
+\end{equation}
+
+\end_inset
+
+назовём новым закрытым блоком, которое будем считать новым состоянием блокчейна
+ 
+\begin_inset Formula $d^{'}$
+\end_inset
+
+, соответствующим моменту 
+\begin_inset Formula $t^{'}$
+\end_inset
+
+.
+ Мастер-узел рассылает (9) всем узлам из множества 
+\begin_inset Formula $A_{N}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+На каждом узле из 
+\begin_inset Formula $A_{N}$
+\end_inset
+
+, предположим, с номером 
+\begin_inset Formula $1\leq m\leq N$
+\end_inset
+
+, осуществляется проверка 
+\begin_inset Formula $s_{b}$
+\end_inset
+
+ и 
+\begin_inset Formula $sig$
+\end_inset
+
+ (9).
+ Если проверка пройдена, то блок 
+\begin_inset Formula $b$
+\end_inset
+
+ добавляется в блокчейн узла номер 
+\begin_inset Formula $m$
+\end_inset
+
+ и блокчейн на узле переходит в состояние 
+\begin_inset Formula $d^{'}=d(t^{'})$
+\end_inset
+
+.
+ Если этот узел не получил указанных выше подписей для проверки в промежутке
+ времени 
+\begin_inset Formula $[t^{'}+\varDelta t,t^{'}+\varDelta t+\lambda]$
+\end_inset
+
+, где 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ – время задержки передачи информации, то узел с номером 
+\begin_inset Formula $m$
+\end_inset
+
+ сочтёт консенсус недостигнутым и выберет новое множество 
+\begin_inset Formula $B_{n^{''}}$
+\end_inset
+
+ на основе старого состояния 
+\begin_inset Formula $d$
+\end_inset
+
+, применяя (3).
+ 
+\end_layout
+
+\begin_layout Section*
+Построение функции 
+\begin_inset Formula $f$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+Вычислим двойной хеш от (9), обозначив полученное число 
+\begin_inset Formula $\nu$
+\end_inset
+
+.
+ Построим псевдослучайную битовую последовательность вида: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\nu_{1}=H(H(d)),\;\nu_{2}=H(H(d+1)),\;\ldots
+\end{equation}
+
+\end_inset
+
+Получим следующую битовую запись: 
+\begin_inset Formula 
+\begin{equation}
+R=\nu_{1}\parallel\nu_{2}\parallel\ldots
+\end{equation}
+
+\end_inset
+
+Битовую запись (11) разделяем последовательно без пропусков и перекрытий
+ на кортежи по 
+\begin_inset Formula $r$
+\end_inset
+
+ бит в каждом, из которых строим множество номеров 
+\begin_inset Formula $j_{k}$
+\end_inset
+
+ узлов из 
+\begin_inset Formula $B_{n^{'}},\;k=1,\ldots,n^{'}\;,\;1\leq j_{k}\leq N$
+\end_inset
+
+, причем 
+\begin_inset Formula $\hat{k}\triangleq1$
+\end_inset
+
+, вследствие чего мастер-узлом всегда будет узел, номер которого сформируется
+ первым.
+ Если случайно повторится уже полученный номер 
+\begin_inset Formula $j_{k}$
+\end_inset
+
+, то повторно полученное число пропускается.
+ 
+\end_layout
+
+\begin_layout Section*
+Выводы 
+\end_layout
+
+\begin_layout Standard
+Предложенный алгоритм sdBFT по мнению авторов должен обладать более высоким
+ быстродействием по сравнению с BFT алгоритмами.
+ Измененяя мощность множества 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+, можно будет управлять скоростью создания новых блоков, другими словами
+ – скоростью работы алгоритма.
+ 
+\end_layout
+
+\begin_layout Standard
+Потенциально большое число участников консенсуса усложняет предварительный
+ сговор, когда группа голосующих узлов формирует новый блок, управляя составом
+ блока по своему усмотрению, так как при следующем установлении консенсуса
+ будет выбрано другое множество 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+ голосующих узлов.
+\end_layout
+
+\begin_layout Standard
+Псевдослучайный выбор множества голосующих узлов 
+\begin_inset Formula $B_{n^{'}}$
+\end_inset
+
+ по мнению авторов не позволит оказать существенного влияния на выбор узлов
+ при следующем голосовании.
+ 
+\end_layout
+
+\begin_layout Standard
+В дальнейшем авторы предполагают получить экспериментальное подтверждение
+ теоретических положений, изложенных в этой статье, оценить скорость работы
+ алгоритма sdBFT, исследовать возможные блокировки сети блокчейн.
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-1"
+
+\end_inset
+
+ Satoshi Nakamoto (2009).
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Bitcoin: A Peer-to-Peer Electronic Cash System
+\begin_inset Quotes erd
+\end_inset
+
+.
+ www.bitcoin.org .
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-2"
+
+\end_inset
+
+ (2018.01.10).
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Transactions Speeds: How Do Cryptocurrencies Stack Up To Visa or PayPal?
+\begin_inset Quotes erd
+\end_inset
+
+.
+ https://howmuch.net/articles/crypto-transaction-speeds-compared .
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-3"
+
+\end_inset
+
+ BitFury Group (2015.09.13).
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Proof of Stake versus Proof of Work
+\begin_inset Quotes erd
+\end_inset
+
+.
+ http://bitfury.com/content/5-white-papers-research/pos-vs-pow-1.0.2.pdf .
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-4"
+
+\end_inset
+
+ Andrew Miller, Yu Xia, Kyle Croman, Elaine Shi, Dawn Song (2016).
+ 
+\begin_inset Quotes eld
+\end_inset
+
+The Honey Badger of BFT Protocols
+\begin_inset Quotes erd
+\end_inset
+
+.
+ https://eprint.iacr.org/2016/199.pdf .
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-5"
+
+\end_inset
+
+ Leslie Lamport, Robert Shostak, Marshall Pease (1982).
+ 
+\begin_inset Quotes eld
+\end_inset
+
+The Byzantine Generals Problem
+\begin_inset Quotes erd
+\end_inset
+
+.
+ ACM Transactions on Programming Languages and Systems.
+ Т.
+ 4, 3: 382–401.
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-6"
+
+\end_inset
+
+ National Institute of Standards and Technology.
+ SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions.
+ https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-8"
+
+\end_inset
+
+ S.
+ Josefsson, I.
+ Liusvaara.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Edwards-Curve Digital Signature Algorithm (EdDSA)
+\begin_inset Quotes erd
+\end_inset
+
+.
+ IETF RFC.
+ https://tools.ietf.org/html/rfc8032 .
+ 
+\end_layout
+
+\end_body
+\end_document

@@ -1,0 +1,217 @@
+\documentclass[a4paper, 14pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english, russian]{babel} 
+\usepackage{amscd, amsmath, amssymb, amsthm, enumerate, indentfirst, longtable, ifthen} %% addlibrary rom mathematic 
+\usepackage{ragged2e}
+ \usepackage{microtype}
+ \usepackage{indentfirst}
+ \usepackage{setspace}
+ \setstretch{1.15} % interval 
+ %%picture 
+ \RequirePackage{caption}
+ \DeclareCaptionLabelSeparator{defffis}{. }
+ \captionsetup{justification=centering,labelsep=defffis}
+\usepackage{graphicx}
+ \graphicspath{{pictures/}}
+ 
+ \DeclareGraphicsExtensions{.png,}
+ %%end picture 
+ \usepackage{geometry}
+ \geometry{
+ 	tmargin=15mm,         % Up 
+ 	bmargin=15mm,         % Down 
+ 	lmargin=15mm,         % left поле
+ 	rmargin=15mm,         % right  
+ }
+
+%% new command 
+\newcommand{\jj}{\righthyphenmin=20 \justifying}
+%opening
+\title{ALGORITHM OF REACHING CONSENSUS FOR LARGE BLOCKCHAIN NETWORKS}
+\author{a@sumus.team, k@sumus.team, rr@sumus.team}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract} 
+\jj We propose a new algorithm for reaching consensus - stake distributed Byzantine Fault Tolerant (sdBFT), that allows to increase the number of nodes of the network involved in consensus building by several orders in comparison with existing algorithms of BFT's class and significantly increase the speed of transactions.
+\end{abstract}
+
+\section{Introduction}\addcontentsline{toc}{section}{Introduction}
+When creating a bitcoin coin and blockchain technology Satoshi Nakamoto used the Proof-of-Work algorithm as a consensus algorithm so-called (PoW) \cite{key-1}. With the growing popularity of blockchain technology the features of the PoW algorithm associated with low transaction speed and, accordingly, their high cost, have been revealed.
+\\
+\indent Many experts from the IT industry have created new consensus algorithms or adapted already existing ones, eliminating weaknesses of PoW. As a result, there appeared consensus algorithms PoS, DPoS, LPoS, PoE, PoIT, pBFT. By this article, we tried to contribute to the development of consensus algorithms.
+\\
+The need to establish our own consensus algorithm appeared when trying to create a blockchain, satisfying the following requirements for the blockchain network:
+\begin{enumerate}
+	\item   Time to create a new block is no more than 1 min.
+	\item	The blockchain network type is a corporate network.
+	\item	The total number of nodes, that can participate in the consensus-building, can vary from $10^{3}$ to $10^{4}$.
+	\item	High transaction speed - at least $10^{3}$ transactions per second.
+	\item	Implementation of the algorithm does not require significant energy costs.
+	\item	Implementation of the blockchain algorithm should not require significant computing power, in contrast with PoW blockchains.
+\end{enumerate}
+	
+	Previously proposed algorithms of consensus are recognized as unsatisfactory for the above requirements by authors for the following reasons.
+\\
+	\indent Consensus PoW -  the very first type of consensus implemented in the Bitcoin currency's blockchain. Consensus is characterized by a low speed of the block closing and low transaction speed, according to the data \cite{key-2} the transaction speed of Bitcoin currency is only 7 transactions per second. Formation of the blockchain block at PoW consensus requires significant computing resources. And the more a consensus participant has computing resources, the higher the probability for him to form a block, what leads to an unproductive computing race between the consensus participants.
+\\
+	\indent Proof-of-Stake (PoS) consensus and its variations DPoS, LPoS were proposed to solve the problems of PoW consensus, connected with high computational costs and a low speed of closing of transaction block \cite{key-3}. Despite the high speed of block closing and low requirements for hardware resources, algorithm PoS has limitations. The problem with PoS is centralization of coins (system resources). Blockchain user, having the maximum amount of system resources, receives even more coins for the provision services for the confirmation of the block. Consequently, the number of nodes, participating in a consensus, will evolutionarily diminish, what will lead to non-compliance with the requirements for the blockchain outlined above. 
+\\
+	\indent 	pBFT consensus - another alternative to the PoW consensus algorithm. Several pBFT consensus realizations have been proposed in the world, one of them  - "Honey Badger" \cite{key-4}. As shown in Fig. 1 The implementation of pBFT consensus works all the better, the smaller the number of nodes participating in the consensus.
+\\
+
+	\begin{figure}[h]
+		\center{\includegraphics[scale=0.55]{1}}
+			\caption{Graph of block forming delay time dependence from the speed of incoming transactions}
+		\label{fig:image}
+	\end{figure}
+
+Figure 1 shows the graph of block forming delay time dependence from the speed of incoming transactions, where Nodes/Tolerance - the relation of the total number of nodes reaching consensus, and the number of nodes that have not reached consensus. 
+	
+	Curve 1 shows the time variation of block closing in relation to the speed of incoming transactions for 32 nodes, curve 2 - for 40 knots, curves 3-6 - for 48, 56, 64 and 104 nodes respectively.
+	
+	Consensus works most effectively with a number of nodes not exceeding 40, the transaction speed for such a number of nodes reaches $2\cdot10{}^{4}$  transactions per second, while the closing time of the block does not exceed 40 seconds.
+	
+	If the number of nodes exceeds 60, curves 5 and 6, then the transaction speed for such a number of nodes does not exceed $0.5\cdot10{}^{3}$ transactions per second, while the closing time of the block exceeds 100 seconds. The time of consensus for 104 nodes reached 6 minutes. 
+	
+	The authors suggest a different approach to solving the problem of performance loss in the pBFT algorithm implemented in the stake distributed Byzantine Fault Tolerant (sdBFT) algorithm of consensus.
+	
+	\section{Main provisions and assumptions of sdBFT}\addcontentsline{toc}{section}{sdBFT}
+
+We proceed from the premise that the task of achieving consensus in the first approximation reduces to obtaining an agreed solution by participants of the distributed system in the event that some of their number did not participate in the coordination of the decision. This can happen for the following reasons:
+
+\begin{enumerate}
+	\item 	An error occurred during the transmission of the message about the decision by one of the participants.
+	 \item 	Too slow transmission of a message about the decision by one of the participants.
+	\item A failure in the work of the participant in the system.
+	\item Misleading when making a decision in the system, both intentional and unintentional.
+\end{enumerate}
+
+If we consider the reasons 1-3 of non-participation in the development of consensus, then to make a decision it is sufficient that condition $n>m+1$ is to be carried out \cite{key-5}, where $m$ \textendash{} the number of participants who did not participate in the consensus, and $n$ \textendash{} number of participants who took the decision. In the event that participants appear in the system, not participating in consensus for the fourth reason, the task is reduced to the task of Byzantine generals, which has a solution when
+\begin{equation}
+n>3\cdot m
+\end{equation}
+
+If instead of $n$ generals we consider $n$ blockchain nodes participating in the development of consensus, it is obvious that this task is similar to the task of Byzantine generals. To solve the problem of increasing the time for reaching consensus it is proposed from a finite set of nodes $B_{n}$,the power of this set is  $\overline{B}_{n}=n$, allocate a subset $\overline{B}_{n^{'}}\;(B_{n^{'}}=n^{'})$ and proceeding from the assumption about uniformity of properties distribution of nodes in all blockchain network, solve the problem not on $B_{n}$, but on $B_{n^{'}}$ under $n\gg n^{'}$. The total number of nodes in the entire blockchain network is set equal to $N$. Denote the set of these nodes as $A_{N}$.
+
+Let there be given a function:
+
+\begin{equation}
+d:T\mapsto Y_{B_{n}},\;d=d(t),\;t\in T
+\end{equation} 
+
+where $t$ \textendash{}  independent variable, corresponding to the current time. Assume that the value $d\in Y_{B_{n}}$ of function (2) corresponds to the current state $B_{n}$ at the moment $t$. 
+
+Let there be given a function:
+
+\begin{equation}
+f:Y_{B_{n}}\mapsto\mathbb{N_{\mathit{N}}},\;f=f(d),\;d\in Y_{B_{n}}
+\end{equation}
+
+where $\mathbb{N}_{\mathit{N}}$ \textendash{}  finite subset of the set of natural numbers $\mathbb{N}$ of capacity $N$.
+
+Let subset $B_{n'}$ be randomly selected from $B_{n}$, where $n'$ is given. Then get
+
+\begin{equation}
+B_{n'}\subset B_{n}\subseteq A_{N}
+\end{equation}
+
+Assume that $Y_{B_{n{'}}}$ \textendash{}  set of values of all $d$, сcorresponding to all current states $B_{n{'}},\;Y_{B_{n{'}}}\subseteq Y_{B_{n}}$ .
+
+Let the function $f$ map $Y_{B_{n{'}}}$  to the set $\mathbb{N}_{n{'}},\;\overline{\mathbb{N}}_{n{'}}=n{'}$. Assume that the number of nodes obtained by such a mapping is $j_{k},\;k=1,\ldots,n{'}$. Suppose that $j_{\hat{k}}$ \textendash{} number of the assigned master node, $1\leq\hat{k}\leq n{'}$. If $b$ \textendash{} forming block, in relation to which at some point in time $t{'}$ set of nodes $B_{n{'}}$ tend to reach consensus, then the hash function SHA-3 \cite{key-6} above this block, denote as $H(b)$, and its values are denoted by $h$. Then the result of calculating the electronic signature, e.g., by algorithm EdDSA \cite{key-7} with elliptic curve parameters edwards25519 \cite{key-7} will be equal to $s=sig(h)$ .
+
+\section{Description of the algorithm}\addcontentsline{toc}{section}{Algo}
+
+	\begin{enumerate}
+		\item 1.	Suppose that at time $\hat{t}\in[t,t^{'})$ node with number $k\;(1\leq k\leq N)$ records $I$ in blockchain $B_{n}$.
+		\item  2.	Select all $j_{k}$, including $j_{\hat{k}}$  using the function $f$. Consensus building is carried out on a half-open interval $[t,t^{'})$.
+		\item 3.	If the master node recognizes inclusion of the record $I$ as valid in block $b$, the master node passes this record to all nodes from $B_{n^{'}}$ for testing and inclusion in the block $b$. Otherwise, the record $I$ is denied without notice.
+		\item 4.	The new record is included in the block before the moment $t^{'}$. The master node sends the message to the same nodes about fixing block $b$. All nodes from $B_{n^{'}}$ calculate the value of hash function  $H(b)$ equal assumed $h$. 
+		\item	5.	Each node computes an external signature:
+			\begin{equation}
+				s_{l}=sig(h),\;\begin{cases}
+				k=l,\ldots,n{'}\\
+				l\neq {\hat{k}}
+				\end{cases}
+			\end{equation}
+		and passes it to the node  ${\hat{k}}$. 
+			\item 6.	The master node expects electronic signatures of time $\varDelta t$ after the moment $t{'}$. In the moment $\varDelta t+t{'}$  a tuple is generated on the master node
+				\begin{equation}
+						s_{b}=(s_{1},\ldots,s_{j}),\;1\leq j<n{'}
+				\end{equation}
+		The master node checks each signature from (6) and counts the number of valid signatures. Some node signatures from $B_{n{'}}$  may be voting "against" or incorrect in that case, when the node with some number $j_{\tilde{k}},\;1\leq\tilde{k}\leq n{'}$ will appear in $B_{n{'}}$, which\\
+		а) recognizes record $I$ as incorrect; 
+\\
+		б) at the time $\tilde{t}\in[t,t{'})$ has a blockchain state $\tilde{d}$, different from the state $d$ for the node $j_{\hat{k}}$;
+\\
+		в) distort record $I$ when forming a blockchain block.
+		\item 	7.	The master node calculates the number of valid signatures ${\mu}$ and verifies fulfillment of inequality: 
+				\begin{equation}
+						\mu>\left[\frac{2}{3}n'\right]
+				\end{equation}
+		If (7) is not implemented, then the master node makes a conclusion, that no consensus has been reached, otherwise, the number is made up for block $b$:
+				\begin{equation}
+					b\parallel s_{k_{1}}\parallel\ldots\parallel s_{k_{\mu}},\;1\leq l<n{'},\;l=1,\ldots,\mu
+				\end{equation}
+		for which $H(b\parallel s_{1}\parallel\ldots\parallel s_{\mu})$  and $sig$, which is the electronic signature of the node with the number $j_{\hat{k}}$, are calculated.
+		
+		\item Denote number
+				\begin{equation}
+						d{'}=b\parallel s_{1}\parallel\ldots\parallel s_{\mu}\parallel sig(H(b\parallel s_{1}\parallel\ldots\parallel s_{\mu}))
+				\end{equation}
+			as a new closed block, which will be considered a new blockchain state $d{'}$, relevant to moment $t{'}$. The master node sends (9) to all nodes of the set $A_{N}$.
+			\item 	9.	Suppose that at each node of  $A_{N}$, with the number $1\leq m\leq N$, verification of $s_{b}$  and $sig$ (9) is carried out. If the verification is passed, then the block $b$ is added in the node's blockchain number $m$ and blockchain on the node goes into state $d{'}=d(t{'})$. If this node does not receive the above signatures for verefication in the time interval $[t{'}+\varDelta t,t{'}+\varDelta t+\lambda]$, where $\lambda$ \textendash{}  data transmission delay time, then the node with the number $m$ will consider the consensus unreached and will choose a new set $B_{n{''}}$ on the basis of the old state $d$, applying (3).
+		
+		\section{Building of function $f$ }\addcontentsline{toc}{section}{Function}
+		Compute the double hash of (9), denoting the resulting number $\nu$. Construct a pseudo-random bit sequence of the form:
+				\begin{equation}
+							\nu_{1}=H(H(d)),\;\nu_{2}=H(H(d+1)),\;\ldots
+				\end{equation}
+		Get the next bit record:
+		\begin{equation}
+		R=\nu_{1}\parallel\nu_{2}\parallel\ldots
+		\end{equation}
+		Divide sequentially bit record (11) without omissions and overlaps on the tuples by  $r$  bits in each, of which build many numbers $j_{k}$ of nodes from  $B_{n{'}},\;k=1,\ldots,n{'}\;,\;1\leq j_{k}\leq N$, when $\hat{k}\triangleq1$, as a result, the master node will always be a node, the  number of which is formed first. If already received number $j_{k}$, is accidentally repeated then the re-obtained number is skipped.
+	\end{enumerate}
+
+\section{Conclusions}\addcontentsline{toc}{section}{Resume}
+	According to the authors the proposed sdBFT algorithm should have a higher speed-in-action compared with BFT algorithms. Changing the capasity of the set $B_{n{'}}$, it will be possible to control the speed of new blocks creation, in other words \textendash{} algorithm speed.
+	Potentially large number of consensus participants complicates the preliminary collusion, when a group of voting nodes forms a new block, managing the composition of the block at its discretion, since at the next consensus setting another set of voting nodes $B_{n{'}}$ will be selected.
+	Pseudo-random selection of a plurality of voting nodes $B_{n{'}}$ according to the authors will not allow to have a significant influence on the choice of nodes on the next vote.
+	In the future, the authors propose to obtain experimental confirmation of theoretical positions, outlined in this article, evaluate the speed of the sdBFT algorithm, explore possible blockchain network locks.
+	
+	
+\begin{thebibliography}{1}
+	\bibitem{key-1} Satoshi Nakamoto (2009). ``Bitcoin: A Peer-to-Peer
+	Electronic Cash System''. www.bitcoin.org .
+	
+	\bibitem{key-2} (2018.01.10). ``Transactions Speeds: How Do Cryptocurrencies
+	Stack Up To Visa or PayPal?''. https://howmuch.net/articles/crypto-transaction-speeds-compared
+	. 
+	
+	\bibitem{key-3} BitFury Group (2015.09.13). ``Proof of Stake versus
+	Proof of Work''. http://bitfury.com/content/5-white-papers-research/pos-vs-pow-1.0.2.pdf
+	.
+	
+	\bibitem{key-4} Andrew Miller, Yu Xia, Kyle Croman, Elaine Shi, Dawn
+	Song (2016). ``The Honey Badger of BFT Protocols''. https://eprint.iacr.org/2016/199.pdf
+	.
+	
+	\bibitem{key-5} Leslie Lamport, Robert Shostak, Marshall Pease (1982).
+	``The Byzantine Generals Problem''. ACM Transactions on Programming
+	Languages and Systems. T.4, 3: 382\textendash 401
+. 
+	
+	\bibitem{key-6} National Institute of Standards and Technology. SHA-3
+	Standard: Permutation-Based Hash and Extendable-Output Functions.
+	https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+	.
+		
+	\bibitem{key-7} S.Josefsson, I.Liusvaara. ``Edwards-Curve Digital
+	Signature Algorithm (EdDSA)''. IETF RFC. https://tools.ietf.org/html/rfc8032
+	. 
+\end{thebibliography}
+\end{document}

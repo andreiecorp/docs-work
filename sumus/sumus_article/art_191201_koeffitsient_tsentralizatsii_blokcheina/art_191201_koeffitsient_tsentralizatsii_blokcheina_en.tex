@@ -1,0 +1,283 @@
+\documentclass{article}
+
+\usepackage[russian, english]{babel} % Последний язык - основной
+\usepackage[utf8]{inputenc} % Включаем поддержку UTF8
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{indentfirst} % Красная строка после заголовка
+
+\usepackage{enumitem} % расширение для enumerate
+%\makeatletter
+%\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+%\makeatother
+
+\usepackage{amsmath} % Расширенное форматирование формул, в т.ч. "aligned"
+
+\usepackage{graphicx,xcolor} % графика для svg
+\graphicspath{{fig/}}
+
+
+\title{Blockchain centralization and trust coefficients.}
+\author{noise@sumus.team}
+\date{December 1, 2019.}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract} 
+The paper proposes a quantitative assessment of the blockchain network centralization in the form of a coefficient calculated on the basis of the network parameters. According to the coefficient values, it is estimated whether the network operates randomly or centrally, or it is decentralized. An estimate is obtained for the optimal number of network nodes using consensus-based algorithms for the best combination of the network’s operation speed and the level of trust in the results of its operation.
+\end{abstract}
+
+\section{Introduction}
+One of the main questions that should be answered when assessing the blockchain network operation is to ensure equality of nodes in the network and uniform loading of their blocks at closing. This state of the network can be called decentralized. In an ideal case, all nodes that work for a long enough time cover the same number of blocks in a decentralized network.
+	
+
+The decentralized state of the network is opposed by two other equally undesirable states. The first is the random operation of the network, when many nodes close a small number of blocks each, but there are fewer nodes where each node closes many blocks, so that these nodes close about as many blocks as the nodes from the first set close. The second is the centralized operation of the network, where most nodes close one or two blocks, and several nodes close almost all blocks.
+	
+
+The task is to build a quantitative assessment of the blockchain network, which allows us to get a quick answer to the question of the level of centralization/decentralization/randomness of the network over a certain time interval, based on the simplest parameters of the network’s operation.
+
+\section{Assessment of the centralized operation of the blockchain network} \label{sec:rate_centr}
+
+The set $\aleph$ of cardinality $\alpha$ is the set of blocks closed at the time $t^*$, $B_n \subset A_N$  is the set of nodes with cardinality $n$ that participated in closing the blocks from the set $\aleph$ \cite{bib_1}, $A_N$ is the set of all nodes of the network.
+
+
+We consider the lattice function 
+$y(i)$
+, where 
+$i = 0, 1, \dots, \alpha$
+, which is constructed according to the following rule: 
+$y(1)=n_1$ 
+which is the number of nodes that closed only one block; 
+$y(2)=n_2$ 
+is the number of nodes that have closed only 2 blocks, \dots, 
+$y(\left[ \dfrac{\alpha}{n} \right])=n_{\dfrac{\alpha}{n}}$
+is the number of nodes that closed 
+$\left[ \dfrac{\alpha}{n} \right]$ 
+blocks, and 
+$y(\alpha) = n_{\alpha}$
+is the number of nodes that closed $\alpha$ blocks each. Obviously, $n_{\alpha}$ is $0$ or $1$; 
+$y(0)=n_0$ 
+is the number of nodes that did not close a single block (did not work); 
+$ i = 1, \dots, \alpha$
+, as a rule, 
+$\alpha \gg n$
+.
+
+
+We also consider some important special cases of the function $y(i)$ values.
+
+
+\begin{enumerate}[label=\alph*)]
+	\item If $n_{\alpha}=1$, then the network is maximally centralized, and all blocks were closed by one node.
+	\item If $n_{\alpha}=0$, then the study can be continued.
+	\item If $n_1=n$, then $n={\alpha}$, and each node closed one block at a time, and the condition $\alpha \gg n$ is not fulfilled.
+	\item If $n_{\dfrac{\alpha}{n}}=n$, then each node closed $\left[ \dfrac{\alpha}{n} \right]$ nodes, which corresponds to maximum decentralization degree without randomness. Case c) also refers to the decentralized state of the network, but cannot be maintained for a long time. 
+	\item If $n_0$ is close to $n$  ($n_0 < n$), then the blockchain has a lot of idle nodes, and the problem statement needs to be reviewed.
+\end{enumerate}
+
+
+\begin{figure}[h!]
+	\centering
+	%	\def\svgwidth{15cm} % изменить размер
+	\input{fig/ex1.pdf_tex}
+	\caption{Dependence of the number of nodes closing the same number of blocks on the number of blocks closed by one node.}
+	\label{figure:ex1}
+\end{figure}
+
+
+We consider a simplified version of the centralization coefficient. Let $ i^* = \underset{i=0,\dots,\alpha}{\operatorname{argmax}}  \left( y(i) \right) $. We assume that $i^*$ is unique.
+
+
+We introduce the centralization coefficient
+
+
+\begin{equation}
+	K_y = 1 - \dfrac{\alpha}{n \cdot i^*}, \; K_y \in [1-\dfrac{\alpha}{n}, 1]
+	\label{equ_1}
+\end{equation}
+
+
+If $K_y < 0$, then this indicates a tendency to random system operation, for example, when $i^*=1 ; \; \alpha \gg n$
+
+
+\begin{equation*}
+	K_{y \min} = 1 - \dfrac{\alpha}{n} < 0
+\end{equation*}
+
+
+When the $K_y = 0$, the most complete decentralization without randomness is achieved, $i^* = \dfrac{\alpha}{n}$. If $y(i^*) = n$, this corresponds to complete decentralization. 
+
+
+If $K_y > 0$, then this indicates a tendency toward centralization, with $K_{y \max} = 1 - \dfrac{1}{n} > 0$, $i^* = \alpha$, and 
+$n_{\alpha} = 1$.
+
+
+If $K^* = \max \left\lbrace \left| K_{y \min} \right|, K_{y \max} \right\rbrace $, then the normalized centralization coefficient is
+
+
+\begin{equation}
+	K_{y \operatorname{norm}} = \dfrac{K_y}{K^*}
+	\label{equ_2}
+\end{equation}
+
+
+The coefficient $K_y$ can be calculated using instead of $i^*$ the average number of blocks closed by one node $\left\langle i \right\rangle$, which is determined by the following expression:
+
+
+\begin{equation}
+	\left\langle i \right\rangle = \underset{\tilde{i} = 0,\dots,\alpha}{\operatorname{argmin}} \left| \sum_{i=0}^{\tilde{i}} y(i) \cdot i - \sum_{i=\tilde{i}+1}^{\alpha} y(i) \cdot i \right| 
+	\label{equ_3}
+\end{equation}
+
+
+\begin{equation}
+	K_y = 1 - \dfrac{\alpha}{n \cdot \left\langle i \right\rangle}
+	\label{equ_4}
+\end{equation}
+
+
+Using (\ref{equ_4}) requires more calculations, but the result will be a more accurate estimate of centralization. The most preferred case is the coincidence of the values of $K_y$ obtained by formulas (\ref{equ_1}) and (\ref{equ_4}). If these values are essentially different, the network cannot be considered as decentralized.
+
+
+\section{Assessment of trust in the blockchain network.}
+
+
+As was pointed out in \cite{bib_1}, all blockchain nodes constitute the set $A_N$ divided into $K$ disjoint subsets $B_n^i$ 
+
+
+\begin{equation}
+	A_N = \bigcup \limits_{i=1}^{K} B_n^i
+	\label{equ_5}
+\end{equation}
+
+
+Nodes included in each $B_n^i$ in accordance and with the hypothesis of a uniform distribution of their numbers. Each set $B_n^i$ has the same cardinality $n$ and, in its meaning, is equivalent to the set from section \textbf{\ref{sec:rate_centr}}.
+
+
+How many nodes should we take in $B_n^i$ so that it causes sufficient trust in the results of the network operation?
+The greater $n$ is the better for trusting in the system, but the less $n$ is relative to $N$, the lower are the computational costs for consensus building. Then the larger is each of the quantities $n$, $\dfrac{N}{n}$, the smaller is  $z(n) = \dfrac{1}{n} + \dfrac{n}{N}$. Having found the minimum of this function by $n$, we obtain the optimal (\ref{equ_4}). 
+
+
+\begin{equation}
+	n_{ \operatorname{opt} } = \sqrt{N}
+	\label{equ_6}
+\end{equation}
+
+
+We can consider $z(n)$ as the coefficient of ``mistrust''. Then $K_{\operatorname{dr}} = \dfrac{1}{z(n)}$ would be the trust coefficient without loss of efficiency, reaching a maximum at $n = n_{ \operatorname{opt} }$.
+
+
+\begin{equation}
+	K_{\operatorname{dr}} = \dfrac{n \cdot N}{n^2 + N} ; \; K_{\operatorname{dr} \operatorname{max}} = \dfrac{\sqrt{N}}{2}
+	\label{equ_7}
+\end{equation}
+
+
+Normalized coefficient $K_{\operatorname{dr}}$ is
+
+
+\begin{equation}
+	K_{\operatorname{drn}} = \dfrac{K_{\operatorname{dr}}}{K_{\operatorname{dr} \operatorname{max}}} = \dfrac{ 2 n \sqrt{N} }{ n^2 + N } \in \left[ 0, 1 \right] 
+	\label{equ_8}
+\end{equation}
+
+
+\newpage
+\begin{figure}[h!]
+	\centering
+	%	\def\svgwidth{15cm} % изменить размер
+	\input{fig/ex2.pdf_tex}
+	\caption{Dependence of the trust coefficient $K_{\operatorname{dr}}$ on the number of nodes in $B_n$.}
+	\label{figure:ex2}
+\end{figure}
+
+
+\section{On the optimal number of nodes in the set of “escort + master” in blockchain networks using the \textit{SDBFT} algorithm}
+
+
+If it is necessary to determine the optimal number of nodes in the set $B_{n^{\prime}}$ consisting of a master node and escort nodes for a blockchain with the set of nodes $B_n$, then we can reason the same way as in the previous section, replacing $N$ with $n$ and $n$ with $n^{\prime}$ in formula (\ref{equ_4}). Then we get
+
+
+\begin{equation}
+	n_{\operatorname{opt}}^{\prime} = \sqrt{n}
+	\label{equ_9}
+\end{equation}
+
+
+If a trust coefficient for $B_{n^{\prime}}$ is required, then with the indicated changes of variables we obtain analogues of formulas  (\ref{equ_7}), (\ref{equ_8}) taking into account the limitations of the \textit{SDBFT} algorithm.
+
+
+\begin{equation}
+	n^{\prime} \ge 5
+	\label{equ_10}
+\end{equation}
+
+
+\section{An example of applying centralization and trust ratios}
+
+
+The operation data of the BITCOIN blockchain \cite{bib_2} for three consecutive rather long time intervals was taken. For each of them, the function $y(i)$ was constructed and the centralization coefficient (\ref{equ_4}) was calculated. 
+
+
+\newpage
+\underline{The first interval}: $\alpha = 210,000$ ; $n = 186,660$ ; $\left[ \dfrac{\alpha}{n} \right] = 1 $ ; $i^* = 1$ ; $K_y = -0.125$ . The blockchain operates, being almost decentralized close to case c). Such an operating mode cannot be maintained for an arbitrarily long time, since it requires almost complete fulfillment of the condition $n = \alpha$. 
+
+
+\begin{figure}[h!]
+	\centering
+	\input{fig/int_1.pdf_tex}
+	\caption{Dependence of the number of nodes on the number of blocks they closed for the first interval.}
+	\label{figure:int_1}
+\end{figure}
+
+
+\newpage
+\underline{The second interval}: $\alpha = 210,000$ ; $n = 9,774$ ; $\left[ \dfrac{\alpha}{n} \right] = 21$ \; ; \; $K_y = 0.996$ ,  which corresponds to the centralized operation of the blockchain. 
+
+
+\begin{figure}[h!]
+	\centering
+	\input{fig/int_2.pdf_tex}
+	\caption{Dependence of the number of nodes on the number of blocks they closed for the second interval.}
+	\label{figure:int_2}
+\end{figure}
+
+
+\newpage
+\underline{Third interval}: $\alpha = 188930$ ; $n = 512$ ; $\left[ \dfrac{\alpha}{n} \right] = 369$ ; $K_y = 0.954$ , which corresponds to the centralized operation of the blockchain. 
+
+\begin{figure}[h!]
+	\centering
+	\input{fig/int_3.pdf_tex}
+	\caption{Dependence of the number of nodes on the number of blocks they closed for the third interval.}
+	\label{figure:int_3}
+\end{figure}
+
+
+\newpage
+\section{Conclusion}
+
+
+The paper offers a convenient assessment procedure for the uniformity of loading blockchain network nodes in the process of closing blocks. This estimate is quite simple and is calculated as a coefficient taking into account the number of closed blocks, the number of nodes that closed a certain number of blocks, and is called the centralization coefficient.
+
+
+In the normalized form, this coefficient takes on values from -1 to 1, which corresponds to the network state from full randomness (-1) to full centralization (1) which allows to quickly estimate, whether the network blockchain corresponds at a certain time interval the main blockchain concept, or equality, and node independence (decentralization) which corresponds to a zero coefficient value.
+
+
+As shown by studies of the BITCOIN network at three time intervals, this network can remain in a decentralized state for a long time, provided that the number of nodes is linearly related to the number of blocks they close.
+
+
+However, at other time intervals, the network comes to centralization if this dependence is violated.
+The paper also offers a trust assessment for the system operation, provided it is decentralized. The assessment is also based on the cardinality of the set of nodes ensuring the formation of an escort and the possibility of choosing a master node to generate consensus, and on the cardinality of the set of all nodes included in the network.
+
+
+\begin{thebibliography}{8}
+	\bibitem{bib_1} a@sumus.team, k@sumus.team, rr@sumus.team. ``Consensus Algorithm for Bigger Blockchain Networks'' (2018).
+	
+	\bibitem{bib_2} Satoshi Nakamoto (2009). ``Bitcoin: A Peer-to-Peer Electronic Cash System''. www.bitcoin.org .
+	
+\end{thebibliography}
+
+\end{document}
